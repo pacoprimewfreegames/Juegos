@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometry Dash HTML - Tienda Modular</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #menuContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(10, 20, 40, 0.95);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 3px solid #00FFFF;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            z-index: 10;
+            max-height: 98vh;
+            overflow-y: auto;
+            width: 370px;
+        }
+        h1 { margin: 0 0 3px 0; text-shadow: 0 0 10px #00ff66; font-size: 20px; }
+        h3 { margin: 5px 0 3px 0; color: #00bfff; font-size: 13px; text-align: center; }
+        .section { display: flex; flex-direction: column; width: 100%; }
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 4px;
+            width: 100%;
+        }
+        .menu-btn {
+            background: linear-gradient(to right, #0055ff, #00aaff);
+            color: white; border: none; padding: 6px 10px; margin: 1px 0;
+            font-size: 11px; font-weight: bold; border-radius: 5px;
+            cursor: pointer; width: 100%; text-align: center; transition: transform 0.2s;
+        }
+        .menu-btn.demon { background: linear-gradient(to right, #660000, #ff0000); }
+        .menu-btn.shop-toggle-btn {
+            background: linear-gradient(to right, #ffd700, #ff8c00);
+            color: #000; font-size: 14px; margin: 10px 0; padding: 10px 20px;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+        .menu-btn:hover { transform: scale(1.02); box-shadow: 0 0 6px #fff; }
+        
+        /* TIENDA POP-UP FLOTANTE */
+        #shopOverlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85); display: none;
+            justify-content: center; align-items: center; z-index: 50;
+        }
+        #shopModal {
+            background: rgba(10, 15, 30, 0.98); width: 380px; max-height: 85vh;
+            border: 3px solid #ffd700; border-radius: 15px; padding: 15px 20px;
+            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4); overflow-y: auto;
+            position: relative;
+        }
+        .close-shop-btn {
+            position: absolute; top: 10px; right: 15px; background: #ff3333;
+            color: white; border: none; font-weight: bold; border-radius: 5px;
+            cursor: pointer; padding: 4px 10px; font-size: 12px;
+        }
+        .close-shop-btn:hover { background: white; color: black; }
+
+        #shop, #auraShop, #skillShop, #codeSection { border-top: 2px dashed #ffd700; margin-top: 6px; padding-top: 4px; text-align: center; width: 100%; }
+        .stats { font-size: 15px; font-weight: bold; color: #ffd700; margin-bottom: 2px; }
+        
+        .shop-grid, .aura-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
+            max-height: 105px; overflow-y: auto; padding-right: 3px;
+        }
+        .skin-item, .aura-item {
+            background: #111; border: 2px solid #555; padding: 3px 1px; border-radius: 5px;
+            cursor: pointer; font-size: 8px; text-align: center; display: flex; flex-direction: column; align-items: center;
+        }
+        .skin-item.owned, .aura-item.owned { border-color: #00ff66; }
+        .skin-item.equipped, .aura-item.equipped { background: #0055ff; border-color: #fff; }
+        .skin-canvas { width: 22px; height: 22px; display: block; background: #222; border: 1px solid #fff; }
+        .aura-preview { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #fff; }
+        .skin-status, .aura-status { display: block; font-weight: bold; margin-top: 1px; }
+
+        /* Estilos de inputs de código y habilidades */
+        .code-input {
+            width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #ffd700;
+            background: #111; color: #fff; font-size: 12px; text-align: center;
+        }
+        .code-btn {
+            padding: 6px 12px; background: #ffd700; color: #000; border: none;
+            font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 4px;
+        }
+        .skill-box-item {
+            background: #111; border: 2px solid #555; padding: 8px; border-radius: 6px;
+            display: flex; justify-content: space-between; align-items: center; font-size: 12px;
+        }
+        .skill-box-item.owned { border-color: #00ff66; }
+
+        #ingameControls {
+            position: absolute; top: 20px; right: calc(50% - 380px); display: none; gap: 8px; z-index: 20;
+        }
+        .control-btn {
+            background: rgba(20, 20, 30, 0.85); color: #fff; border: 2px solid #00FFFF;
+            padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px;
+            cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
+        }
+        .control-btn.exit-btn { border-color: #ff3333; }
+        .control-btn:hover { background: #fff; color: #000; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+
+        canvas#gameCanvas { display: none; border: 4px solid #333; background: linear-gradient(to bottom, #000022, #002244); }
+        #info { margin-top: 8px; font-size: 15px; display: none; }
+        .highlight { color: #00FFFF; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div id="ingameControls">
+        <button class="control-btn" onclick="exitToMenu()">Menú Principal</button>
+        <button class="control-btn exit-btn" onclick="resetGame()">Reiniciar</button>
+    </div>
+
+    <!-- CONTENEDOR DEL MENÚ PRINCIPAL -->
+    <div id="menuContainer">
+        <h1>GEOMETRY DASH HTML</h1>
+        <div class="stats">🪙 Monedas: <span id="coinCount">0</span></div>
+        
+        <button class="menu-btn shop-toggle-btn" onclick="toggleShop(true)">🏪 ABRIR TIENDA</button>
+
+        <div class="section">
+            <h3>NIVELES FÁCILES (20 🪙)</h3>
+            <div class="level-grid">
+                <button class="menu-btn" onclick="startGame(1, false)">Stereo Madness</button>
+                <button class="menu-btn" onclick="startGame(2, false)">Back On Track</button>
+                <button class="menu-btn" onclick="startGame(3, false)">Polargeist</button>
+                <button class="menu-btn" onclick="startGame(4, false)">Dry Out</button>
+                <button class="menu-btn" onclick="startGame(5, false)">Base After Base</button>
+                <button class="menu-btn" onclick="startGame(6, false)">Cant Let Go</button>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 style="color: #ff3333;">NIVELES DEMON (40 🪙)</h3>
+            <div class="level-grid">
+                <button class="menu-btn demon" onclick="startGame(1, true)">Madness [D]</button>
+                <button class="menu-btn demon" onclick="startGame(2, true)">Track [D]</button>
+                <button class="menu-btn demon" onclick="startGame(3, true)">Polargeist [D]</button>
+                <button class="menu-btn demon" onclick="startGame(4, true)">Dry Out [D]</button>
+                <button class="menu-btn demon" onclick="startGame(5, true)">Base [D]</button>
+                <button class="menu-btn demon" onclick="startGame(6, true)">Cant Let Go [D]</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- VENTANA EMERGENTE POP-UP: TIENDA COMPLETA -->
+    <div id="shopOverlay">
+        <div id="shopModal">
+            <button class="close-shop-btn" onclick="toggleShop(false)">X</button>
+            <h2 style="text-align:center; color:#ffd700; margin:0 0 10px 0;">🏪 MEGATIENDA</h2>
+            
+            <!-- MOSTRADOR DE 11 SKINS -->
+            <div id="shop">
+                <h3>TIENDA DE SKINS (11 MODELOS)</h3>
+                <div class="shop-grid">
+                    <div class="skin-item equipped" id="skin0" onclick="clickSkin(0, 0)"><canvas class="skin-canvas" id="preview0" width="30" height="30"></canvas><span class="skin-status" id="status0">Equipado</span></div>
+                    <div class="skin-item" id="skin1" onclick="clickSkin(1, 15)"><canvas class="skin-canvas" id="preview1" width="30" height="30"></canvas><span class="skin-status" id="status1">15 🪙</span></div>
+                    <div class="skin-item" id="skin2" onclick="clickSkin(2, 30)"><canvas class="skin-canvas" id="preview2" width="30" height="30"></canvas><span class="skin-status" id="status2">30 🪙</span></div>
+                    <div class="skin-item" id="skin3" onclick="clickSkin(3, 45)"><canvas class="skin-canvas" id="preview3" width="30" height="30"></canvas><span class="skin-status" id="status3">45 🪙</span></div>
+                    <div class="skin-item" id="skin4" onclick="clickSkin(4, 60)"><canvas class="skin-canvas" id="preview4" width="30" height="30"></canvas><span class="skin-status" id="status4">60 🪙</span></div>
+                    <div class="skin-item" id="skin5" onclick="clickSkin(5, 75)"><canvas class="skin-canvas" id="preview5" width="30" height="30"></canvas><span class="skin-status" id="status5">75 🪙</span></div>
+                    <div class="skin-item" id="skin6" onclick="clickSkin(6, 90)"><canvas class="skin-canvas" id="preview6" width="30" height="30"></canvas><span class="skin-status" id="status6">90 🪙</span></div>
+                    <div class="skin-item" id="skin7" onclick="clickSkin(7, 105)"><canvas class="skin-canvas" id="preview7" width="30" height="30"></canvas><span class="skin-status" id="status7">105 🪙</span></div>
+                    <div class="skin-item" id="skin8" onclick="clickSkin(8, 120)"><canvas class="skin-canvas" id="preview8" width="30" height="30"></canvas><span class="skin-status" id="status8">120 🪙</span></div>
+                    <div class="skin-item" id="skin9" onclick="clickSkin(9, 135)"><canvas class="skin-canvas" id="preview9" width="30" height="30"></canvas><span class="skin-status" id="status9">135 🪙</span></div>
+                    <div class="skin-item" id="skin10" onclick="clickSkin(10, 160)"><canvas class="skin-canvas" id="preview10" width="30" height="30"></canvas><span class="skin-status" id="status10">160 🪙</span></div>
+                </div>
+            </div>
+
+            <!-- MOSTRADOR DE 12 AURAS -->
+            <div id="auraShop">
+                <h3>TIENDA DE AURAS (12 MODELOS)</h3>
+                <div class="aura-grid">
+                    <div class="aura-item equipped" id="aura0" onclick="clickAura(0, 0)"><div class="aura-preview" style="background:#555;"></div><span class="aura-status" id="astatus0">Equipado</span></div>
+                    <div class="aura-item" id="aura1" onclick="clickAura(1, 20)"><div class="aura-preview" style="background:#ff4500;"></div><span class="aura-status" id="astatus1">20 🪙</span></div>
+                    <div class="aura-item" id="aura2" onclick="clickAura(2, 35)"><div class="aura-preview" style="background:#00ffff;"></div><span class="aura-status" id="astatus2">35 🪙</span></div>
+                    <div class="aura-item" id="aura3" onclick="clickAura(3, 50)"><div class="aura-preview" style="background:#ffff00;"></div><span class="aura-status" id="astatus3">50 🪙</span></div>
+                    <div class="aura-item" id="aura4" onclick="clickAura(4, 65)"><div class="aura-preview" style="background:#ff0055;"></div><span class="aura-status" id="astatus4">65 🪙</span></div>
+                    <div class="aura-item" id="aura5" onclick="clickAura(5, 80)"><div class="aura-preview" style="background:#9400d3;"></div><span class="aura-status" id="astatus5">80 🪙</span></div>
+                    <div class="aura-item" id="aura6" onclick="clickAura(6, 95)"><div class="aura-preview" style="background:#00ff66;"></div><span class="aura-status" id="astatus6">95 🪙</span></div>
+                    <div class="aura-item" id="aura7" onclick="clickAura(7, 110)"><div class="aura-preview" style="background:#ffd700;"></div><span class="aura-status" id="astatus7">110 🪙</span></div>
+                    <div class="aura-item" id="aura8" onclick="clickAura(8, 125)"><div class="aura-preview" style="background:#ff00ff;"></div><span class="aura-status" id="astatus8">125 🪙</span></div>
+                    <div class="aura-item" id="aura9" onclick="clickAura(9, 140)"><div class="aura-preview" style="background:#ffffff;"></div><span class="aura-status" id="astatus9">140 🪙</span></div>
+                    <div class="aura-item" id="aura10" onclick="clickAura(10, 155)"><div class="aura-preview" style="background:#ff66aa;"></div><span class="aura-status" id="astatus10">155 🪙</span></div>
+                    <div class="aura-item" id="aura11" onclick="clickAura(11, 180)"><div class="aura-preview" style="background:#76ff03;"></div><span class="aura-status" id="astatus11">180 🪙</span></div>
+                </div>
+            </div>
+
+            <!-- NUEVO: TIENDA DE HABILIDADES -->
+            <div id="skillShop">
+                <h3>HABILIDADES especiales</h3>
+                <div class="skill-box-item" id="doubleJumpItem">
+                    <span>👟 Doble Salto</span>
+                    <button class="code-btn" style="margin:0;" onclick="buyDoubleJump()">300 🪙</button>
+                </div>
+            </div>
+
+            <!-- NUEVO: SECCIÓN DE CANJEAR CÓDIGOS -->
+            <div id="codeSection">
+                <h3>🔑 CANJEAR CÓDIGOS</h3>
+                <div style="display:flex; justify-content:center; align-items:center;">
+                    <input type="text" id="codeInputField" class="code-input" placeholder="Escribe tu código aquí...">
+                    <button class="code-btn" onclick="redeemCode()">Canjear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div id="info">Nivel: <span id="levelName" class="highlight">-</span> | Intento: <span id="attempts" class="highlight">1</span></div>
+
+    <script>
+ const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const attemptsEl = document.getElementById("attempts");
+        const levelNameEl = document.getElementById("levelName");
+        const menuContainer = document.getElementById("menuContainer");
+        const coinCountEl = document.getElementById("coinCount");
+
+        // --- SISTEMAS DE TIENDA Y MONEDAS ---
+        let coins = 0;
+        let ownedSkins = [true, false, false, false, false, false, false, false, false, false, false]; 
+        let equippedSkin = 0;
+        let ownedAuras = [true, false, false, false, false, false, false, false, false, false, false, false]; 
+        let equippedAura = 0;
+        let particles = []; 
+
+        // NUEVO: Variables para Doble Salto e identificación de Admin
+        let hasDoubleJump = false;
+        let jumpCount = 0; // Contador para controlar los saltos en el aire
+        let isAdminPikachu = false;
+
+        // --- CONFIGURACIÓN MOTOR ---
+        const gravity = 0.95;       
+        let gameSpeed = 6.2;      
+        const GRID_SIZE = 30;  
+        const floorY = canvas.height - 80;
+        
+        let attempts = 1;
+        let cameraX = 0;
+        let currentLevelId = 1;
+        let isDemonMode = false;
+        let isPlaying = false;
+
+        // --- JUGADOR ---
+        const player = {
+            x: 150, y: floorY - GRID_SIZE, size: GRID_SIZE,
+            ySpeed: 0, jumpForce: -14.5, isGrounded: false, rotation: 0
+        };
+
+        // --- CONTROL DE LA TIENDA MODAL ---
+        function toggleShop(open) {
+            document.getElementById("shopOverlay").style.display = open ? "flex" : "none";
+            if (open) setTimeout(drawAllPreviews, 50);
+        }
+
+        // --- BANCO COMPLETO DE MAPAS (12 NIVELES CONSERVADOS) ---
+        const levelsData = {
+            easy: {
+                1: [
+                    { gridX: 25, type: 's' }, { gridX: 38, type: 's' }, { gridX: 50, type: 's' },
+                    { gridX: 62, type: 'b', height: 1 }, { gridX: 63, type: 'b', height: 1 },
+                    { gridX: 75, type: 'b', height: 1 }, { gridX: 76, type: 'b', height: 2 },
+                    { gridX: 77, type: 's', height: 2 }, { gridX: 90, type: 'ss' },
+                    { gridX: 105, type: 'b', height: 1 }, { gridX: 118, type: 'sss' }
+                ],
+                2: [
+                    { gridX: 25, type: 'b', height: 1 }, { gridX: 40, type: 's' }, { gridX: 52, type: 'ss' },
+                    { gridX: 65, type: 'b', height: 1 }, { gridX: 66, type: 'b', height: 2 },
+                    { gridX: 80, type: 's' }, { gridX: 92, type: 'b', height: 1 },
+                    { gridX: 94, type: 's', height: 1 }, { gridX: 108, type: 'ss' }
+                ],
+                3: [
+                    { gridX: 25, type: 's' }, { gridX: 38, type: 'b', height: 1 }, { gridX: 40, type: 'b', height: 2 },
+                    { gridX: 55, type: 'sss' }, { gridX: 70, type: 'b', height: 1 }, { gridX: 72, type: 's' },
+                    { gridX: 85, type: 'b', height: 2 }, { gridX: 98, type: 'ss' }, { gridX: 112, type: 'sss' }
+                ],
+                4: [
+                    { gridX: 20, type: 's' }, { gridX: 32, type: 'b', height: 1 }, { gridX: 35, type: 's' },
+                    { gridX: 48, type: 'ss' }, { gridX: 60, type: 'b', height: 2 }, { gridX: 62, type: 'b', height: 1 },
+                    { gridX: 75, type: 's' }, { gridX: 88, type: 'b', height: 2 }, { gridX: 90, type: 's', height: 2 },
+                    { gridX: 102, type: 'sss' }, { gridX: 115, type: 'b', height: 1 }
+                ],
+                5: [
+                    { gridX: 22, type: 'b', height: 1 }, { gridX: 24, type: 'b', height: 1 }, { gridX: 36, type: 'ss' },
+                    { gridX: 48, type: 's' }, { gridX: 60, type: 'b', height: 1 }, { gridX: 62, type: 'b', height: 2 },
+                    { gridX: 74, type: 'sss' }, { gridX: 88, type: 'b', height: 3 }, { gridX: 100, type: 'ss' },
+                    { gridX: 112, type: 'b', height: 1 }, { gridX: 125, type: 'sss' }
+                ],
+                6: [
+                    { gridX: 20, type: 's' }, { gridX: 30, type: 'ss' }, { gridX: 42, type: 'b', height: 1 },
+                    { gridX: 44, type: 'b', height: 2 }, { gridX: 46, type: 'b', height: 3 }, { gridX: 58, type: 's' },
+                    { gridX: 70, type: 'sss' }, { gridX: 82, type: 'b', height: 2 }, { gridX: 84, type: 's', height: 2 },
+                    { gridX: 96, type: 'ss' }, { gridX: 110, type: 'b', height: 1 }, { gridX: 122, type: 'sss' }
+                ]
+            },
+            demon: {
+                1: [
+                    { gridX: 20, type: 'sss' }, { gridX: 32, type: 'ss' }, { gridX: 42, type: 'b', height: 1 },
+                    { gridX: 43, type: 's', height: 1 }, { gridX: 52, type: 'sss' }, { gridX: 62, type: 'b', height: 1 },
+                    { gridX: 63, type: 'b', height: 2 }, { gridX: 64, type: 'b', height: 3 },
+                    { gridX: 65, type: 's', height: 3 }, { gridX: 75, type: 'sss' }, { gridX: 88, type: 'b', height: 2 },
+                    { gridX: 96, type: 'ss' }, { gridX: 106, type: 'sss' }
+                ],
+                2: [
+                    { gridX: 22, type: 'ss' }, { gridX: 30, type: 'b', height: 1 }, { gridX: 32, type: 'sss' },
+                    { gridX: 44, type: 'b', height: 2 }, { gridX: 45, type: 's', height: 2 }, { gridX: 54, type: 'sss' },
+                    { gridX: 64, type: 'b', height: 1 }, { gridX: 66, type: 'b', height: 3 },
+                    { gridX: 76, type: 'ss' }, { gridX: 84, type: 'sss' }, { gridX: 96, type: 'b', height: 2 },
+                    { gridX: 104, type: 'sss' }
+                ],
+                3: [
+                    { gridX: 20, type: 'sss' }, { gridX: 30, type: 'b', height: 1 }, { gridX: 31, type: 'b', height: 2 },
+                    { gridX: 32, type: 's', height: 2 }, { gridX: 42, type: 'sss' }, { gridX: 52, type: 'b', height: 3 },
+                    { gridX: 53, type: 's', height: 3 }, { gridX: 62, type: 'sss' }, { gridX: 72, type: 'sss' },
+                    { gridX: 82, type: 'b', height: 1 }, { gridX: 84, type: 'ss' }, { gridX: 96, type: 'sss' }
+                ],
+                4: [
+                    { gridX: 18, type: 'sss' }, { gridX: 28, type: 'b', height: 2 }, { gridX: 30, type: 'sss' },
+                    { gridX: 42, type: 'ss' }, { gridX: 52, type: 'b', height: 3 }, { gridX: 53, type: 's', height: 3 },
+                    { gridX: 65, type: 'sss' }, { gridX: 75, type: 'b', height: 1 }, { gridX: 77, type: 'sss' },
+                    { gridX: 90, type: 'ss' }, { gridX: 102, type: 'b', height: 2 }, { gridX: 110, type: 'sss' }
+                ],
+                5: [
+                    { gridX: 18, type: 'ss' }, { gridX: 26, type: 'sss' }, { gridX: 38, type: 'b', height: 2 },
+                    { gridX: 39, type: 's', height: 2 }, { gridX: 50, type: 'sss' }, { gridX: 60, type: 'b', height: 3 },
+                    { gridX: 72, type: 'sss' }, { gridX: 84, type: 'ss' }, { gridX: 94, type: 'b', height: 1 },
+                    { gridX: 96, type: 'sss' }, { gridX: 108, type: 'b', height: 3 }, { gridX: 116, type: 'sss' }
+                ],
+                6: [
+                    { gridX: 18, type: 'sss' }, { gridX: 28, type: 'sss' }, { gridX: 40, type: 'b', height: 3 },
+                    { gridX: 41, type: 's', height: 3 }, { gridX: 52, type: 'ss' }, { gridX: 64, type: 'sss' },
+                    { gridX: 74, type: 'b', height: 2 }, { gridX: 76, type: 'sss' }, { gridX: 88, type: 'b', height: 1 },
+                    { gridX: 90, type: 'ss' }, { gridX: 102, type: 'sss' }, { gridX: 114, type: 'b', height: 3 }, { gridX: 122, type: 'sss' }
+                ]
+            }
+        };
+function drawSkinGraphics(pCtx, size, typeId) {
+            pCtx.clearRect(0, 0, size, size);
+            
+            if (isAdminPikachu) {
+                pCtx.fillStyle = "#FFDE00"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#000000"; pCtx.fillRect(0, 0, size * 0.25, size * 0.2); pCtx.fillRect(size * 0.75, 0, size * 0.25, size * 0.2);
+                pCtx.fillStyle = "#000000"; pCtx.fillRect(size * 0.2, size * 0.35, size * 0.15, size * 0.2); pCtx.fillRect(size * 0.65, size * 0.35, size * 0.15, size * 0.2);
+                pCtx.fillStyle = "#FFFFFF"; pCtx.fillRect(size * 0.2, size * 0.35, size * 0.06, size * 0.08); pCtx.fillRect(size * 0.65, size * 0.35, size * 0.06, size * 0.08);
+                pCtx.fillStyle = "#FF0000"; pCtx.fillRect(size * 0.1, size * 0.6, size * 0.16, size * 0.16); pCtx.fillRect(size * 0.74, size * 0.6, size * 0.16, size * 0.16);
+                pCtx.fillStyle = "#000000"; pCtx.fillRect(size * 0.46, size * 0.52, size * 0.08, size * 0.06); pCtx.fillRect(size * 0.38, size * 0.65, size * 0.24, size * 0.06);
+                return;
+            }
+
+            if (typeId === 0) { 
+                pCtx.fillStyle = "#00ff66"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.6, size * 0.6);
+                pCtx.fillStyle = "#000"; pCtx.fillRect(size * 0.3, size * 0.35, size * 0.15, size * 0.25); pCtx.fillRect(size * 0.55, size * 0.35, size * 0.15, size * 0.25);
+            } else if (typeId === 1) { 
+                pCtx.fillStyle = "#ff00ff"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#111"; pCtx.fillRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(size * 0.15, size * 0.35, size * 0.7, size * 0.2);
+            } else if (typeId === 2) { 
+                pCtx.fillStyle = "#ffff00"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#000"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.2, size * 0.2); pCtx.fillRect(size * 0.6, size * 0.2, size * 0.2, size * 0.2);
+                pCtx.fillRect(size * 0.3, size * 0.5, size * 0.4, size * 0.2);
+            } else if (typeId === 3) { 
+                pCtx.fillStyle = "#0055ff"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#00ffff"; pCtx.beginPath(); pCtx.moveTo(size/2, size*0.1); pCtx.lineTo(size*0.9, size/2); pCtx.lineTo(size/2, size*0.9); pCtx.lineTo(size*0.1, size/2); pCtx.fill();
+            } else if (typeId === 4) { 
+                pCtx.fillStyle = "#888"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#ff66aa"; pCtx.fillRect(size * 0.3, size * 0.3, size * 0.4, size * 0.4);
+                pCtx.fillStyle = "#fff"; pCtx.fillRect(size * 0.4, size * 0.1, size * 0.2, size * 0.8); pCtx.fillRect(size * 0.1, size * 0.4, size * 0.8, size * 0.2);
+            } else if (typeId === 5) { 
+                pCtx.fillStyle = "#ff3333"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#000"; pCtx.beginPath(); pCtx.moveTo(size*0.2, size*0.2); pCtx.lineTo(size*0.45, size*0.4); pCtx.lineTo(size*0.45, size*0.25); pCtx.fill(); pCtx.moveTo(size*0.8, size*0.2); pCtx.lineTo(size*0.55, size*0.4); pCtx.lineTo(size*0.55, size*0.25); pCtx.fill(); pCtx.fillRect(size * 0.25, size * 0.65, size * 0.5, size * 0.1);
+            } else if (typeId === 6) { 
+                pCtx.fillStyle = "#ffaa00"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#222"; pCtx.fillRect(size * 0.15, size * 0.15, size * 0.7, size * 0.7);
+                pCtx.fillStyle = "#ff0000"; pCtx.fillRect(size * 0.3, size * 0.35, size * 0.4, size * 0.15);
+            } else if (typeId === 7) { 
+                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#000"; pCtx.fillRect(0, size * 0.2, size, size * 0.15); pCtx.fillRect(0, size * 0.5, size, size * 0.15); pCtx.fillRect(0, size * 0.8, size, size * 0.15);
+            } else if (typeId === 8) { 
+                pCtx.fillStyle = "#9400d3"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#ffd700"; pCtx.fillRect(size * 0.4, size * 0.1, size * 0.2, size * 0.8);
+                pCtx.fillRect(size * 0.1, size * 0.4, size * 0.8, size * 0.2);
+            } else if (typeId === 9) { 
+                pCtx.fillStyle = "#ffffff"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#ff00ff"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.3, size * 0.3);
+                pCtx.fillRect(size * 0.5, size * 0.5, size * 0.3, size * 0.3);
+            } else if (typeId === 10) { 
+                pCtx.fillStyle = "#4a0e4e"; pCtx.fillRect(0, 0, size, size);
+                pCtx.fillStyle = "#ffd700"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.6, size * 0.6); pCtx.strokeStyle = "#ffffff"; pCtx.lineWidth = 2; pCtx.strokeRect(size * 0.3, size * 0.3, size * 0.4, size * 0.4);
+            }
+        }
+
+        function drawAllPreviews() {
+            for (let i = 0; i < 11; i++) {
+                const c = document.getElementById("preview" + i);
+                if (c) drawSkinGraphics(c.getContext("2d"), 30, i);
+            }
+        }
+
+        function startGame(levelId, demonMode) {
+            currentLevelId = levelId; isDemonMode = demonMode;
+            attempts = 1; cameraX = 0; gameSpeed = isDemonMode ? 6.5 : 6.2;
+            attemptsEl.innerText = attempts;
+            
+            const levelNames = ["Stereo Madness", "Back On Track", "Polargeist", "Dry Out", "Base After Base", "Cant Let Go"];
+            const baseName = levelNames[levelId - 1] || "Nivel";
+            levelNameEl.innerText = baseName + (isDemonMode ? " [DEMON]" : "");
+            
+            menuContainer.style.display = "none"; canvas.style.display = "block";
+            document.getElementById("info").style.display = "block";
+            document.getElementById("ingameControls").style.display = "flex"; 
+            player.y = floorY - player.size; player.ySpeed = 0; player.rotation = 0; player.isGrounded = true;
+            jumpCount = 0; buildLevel(); isPlaying = true;
+        }
+function update() {
+            if (!isPlaying) return;
+            if (isPressing) jump();
+
+            player.ySpeed += gravity; player.y += player.ySpeed; cameraX += gameSpeed;
+            let onAnyObject = false;
+
+            if (player.y >= floorY - player.size) {
+                player.y = floorY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
+                jumpCount = 0; // NUEVO: Limpia el contador al pisar el suelo principal
+            }
+
+            createParticles();
+
+            particles.forEach((p, index) => {
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.025; 
+                if (equippedAura === 3) p.x += (Math.random() - 0.5) * 4;
+                if (p.alpha <= 0) particles.splice(index, 1);
+            });
+
+            obstacles.forEach(obs => {
+                let screenX = obs.x - cameraX; let screenY = floorY - obs.baseHeight;
+                if (obs.type === 'b') {
+                    if (player.x + player.size > screenX + 2 && player.x < screenX + obs.width - 2 &&
+                        player.y + player.size >= screenY - 8 && player.y + player.size <= screenY + 12 && player.ySpeed >= 0) {
+                        player.y = screenY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
+                        jumpCount = 0; // NUEVO: Limpia el contador al pisar la superficie de un bloque
+                    } else if (player.x + player.size > screenX && player.x < screenX + 12 && player.y + player.size > screenY + 4) {
+                        resetGame();
+                    }
+                } else {
+                    let spikeY = floorY - obs.baseHeight - obs.height;
+                    if (player.x + player.size - 6 > screenX && player.x + 6 < screenX + obs.width && player.y + player.size - 4 > spikeY) {
+                        resetGame();
+                    }
+                }
+            });
+
+            if (!onAnyObject) {
+                player.isGrounded = false; player.rotation += isDemonMode ? 0.14 : 0.12;
+            } else {
+                player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
+            }
+
+            const currentList = isDemonMode ? levelsData.demon[currentLevelId] : levelsData.easy[currentLevelId];
+            const lastObstacle = currentList[currentList.length - 1];
+            if (cameraX > (lastObstacle.gridX * GRID_SIZE) + 1200) {
+                isPlaying = false;
+                let prize = isDemonMode ? 40 : 20; coins += prize; coinCountEl.innerText = coins;
+                alert(`¡Nivel Completado! Recompensa: 🪙 ${prize} monedas.`);
+                canvas.style.display = "none"; document.getElementById("info").style.display = "none";
+                document.getElementById("ingameControls").style.display = "none"; 
+                menuContainer.style.display = "flex"; setTimeout(drawAllPreviews, 50);
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (isDemonMode) {
+                ctx.strokeStyle = "rgba(255, 0, 0, 0.04)"; ctx.fillStyle = "#150000";
+            } else {
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.03)"; ctx.fillStyle = "#0d0d26";
+            }
+
+            let offsetX = -(cameraX % GRID_SIZE);
+            for (let x = offsetX; x < canvas.width; x += GRID_SIZE) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, floorY); ctx.stroke();
+            }
+            ctx.fillRect(0, floorY, canvas.width, canvas.height - floorY);
+            
+            ctx.strokeStyle = isDemonMode ? "#ff0044" : "#0088ff"; 
+            ctx.lineWidth = 4;
+            ctx.beginPath(); ctx.moveTo(0, floorY); ctx.lineTo(canvas.width, floorY); ctx.stroke(); 
+
+            // Partículas de las auras
+            particles.forEach(p => {
+                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                if (equippedAura === 3) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y - p.size); ctx.lineTo(p.x + p.size/2, p.y);
+                    ctx.lineTo(p.x, p.y + p.size); ctx.lineTo(p.x - p.size/2, p.y);
+                    ctx.fill();
+                } else {
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+                }
+                ctx.restore();
+            });
+
+            obstacles.forEach(obs => {
+                let screenX = obs.x - cameraX;
+                if (screenX > -150 && screenX < canvas.width + 150) {
+                    if (obs.type === 'b') {
+                        ctx.fillStyle = "#111"; ctx.strokeStyle = isDemonMode ? "#ff3333" : "#fff"; ctx.lineWidth = 2;
+                        ctx.fillRect(screenX, floorY - obs.baseHeight, obs.width, obs.baseHeight);
+                        ctx.strokeRect(screenX, floorY - obs.baseHeight, obs.width, obs.baseHeight);
+                    } else {
+                        ctx.fillStyle = isDemonMode ? "#ff0000" : "#ff2a2a";
+                        let totalSpikes = obs.type === 's' ? 1 : (obs.type === 'ss' ? 2 : 3);
+                        let spikeY = floorY - obs.baseHeight;
+                        for (let i = 0; i < totalSpikes; i++) {
+                            let currentX = screenX + (i * GRID_SIZE);
+                            ctx.beginPath(); ctx.moveTo(currentX, spikeY); ctx.lineTo(currentX + 15, spikeY - GRID_SIZE); ctx.lineTo(currentX + 30, spikeY); ctx.fill();
+                        }
+                    }
+                }
+            });
+
+            if (isPlaying) {
+                ctx.save();
+                ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
+                ctx.rotate(player.rotation); ctx.translate(-player.size / 2, -player.size / 2);
+                drawSkinGraphics(ctx, player.size, equippedSkin);
+                ctx.restore();
+            }
+        }
+
+        function loop() { update(); draw(); requestAnimationFrame(loop); }
+        setTimeout(drawAllPreviews, 150);
+        loop();
+    </script>
+</body>
+</html>
