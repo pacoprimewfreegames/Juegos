@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash HTML - Tienda Modular</title>
+    <title>Geometry Dash HTML - Fix Tienda y Códigos</title>
     <style>
         body {
             margin: 0;
@@ -54,7 +54,6 @@
         }
         .menu-btn:hover { transform: scale(1.02); box-shadow: 0 0 6px #fff; }
         
-        /* TIENDA POP-UP FLOTANTE */
         #shopOverlay {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.85); display: none;
@@ -90,7 +89,6 @@
         .aura-preview { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #fff; }
         .skin-status, .aura-status { display: block; font-weight: bold; margin-top: 1px; }
 
-        /* Estilos de inputs de código y habilidades */
         .code-input {
             width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #ffd700;
             background: #111; color: #fff; font-size: 12px; text-align: center;
@@ -202,16 +200,16 @@
                 </div>
             </div>
 
-            <!-- NUEVO: TIENDA DE HABILIDADES -->
+            <!-- TIENDA DE HABILIDADES -->
             <div id="skillShop">
-                <h3>HABILIDADES especiales</h3>
+                <h3>HABILIDADES ESPECIALES</h3>
                 <div class="skill-box-item" id="doubleJumpItem">
                     <span>👟 Doble Salto</span>
                     <button class="code-btn" style="margin:0;" onclick="buyDoubleJump()">300 🪙</button>
                 </div>
             </div>
 
-            <!-- NUEVO: SECCIÓN DE CANJEAR CÓDIGOS -->
+            <!-- SECCIÓN DE CANJEAR CÓDIGOS -->
             <div id="codeSection">
                 <h3>🔑 CANJEAR CÓDIGOS</h3>
                 <div style="display:flex; justify-content:center; align-items:center;">
@@ -226,7 +224,7 @@
     <div id="info">Nivel: <span id="levelName" class="highlight">-</span> | Intento: <span id="attempts" class="highlight">1</span></div>
 
     <script>
- const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const attemptsEl = document.getElementById("attempts");
         const levelNameEl = document.getElementById("levelName");
@@ -241,9 +239,9 @@
         let equippedAura = 0;
         let particles = []; 
 
-        // NUEVO: Variables para Doble Salto e identificación de Admin
+        // Variables de Habilidades y Admin
         let hasDoubleJump = false;
-        let jumpCount = 0; // Contador para controlar los saltos en el aire
+        let jumpCount = 0; 
         let isAdminPikachu = false;
 
         // --- CONFIGURACIÓN MOTOR ---
@@ -351,6 +349,214 @@
                 ]
             }
         };
+let obstacles = [];
+
+        function buildLevel() {
+            const levelList = isDemonMode ? levelsData.demon[currentLevelId] : levelsData.easy[currentLevelId];
+            obstacles = levelList.map(obs => {
+                let realX = obs.gridX * GRID_SIZE + 500; 
+                let baseHeight = obs.height ? obs.height * GRID_SIZE : 0;
+                return {
+                    x: realX, type: obs.type, baseHeight: baseHeight,
+                    width: obs.type === 'ss' ? 60 : (obs.type === 'sss' ? 90 : 30), height: 30
+                };
+            });
+        }
+
+        function resetGame() {
+            attempts++;
+            attemptsEl.innerText = attempts;
+            cameraX = 0;
+            player.y = floorY - player.size;
+            player.ySpeed = 0;
+            player.rotation = 0;
+            player.isGrounded = true;
+            jumpCount = 0; 
+            particles = []; 
+            buildLevel();
+        }
+
+        function exitToMenu() {
+            isPlaying = false;
+            canvas.style.display = "none";
+            document.getElementById("info").style.display = "none";
+            document.getElementById("ingameControls").style.display = "none";
+            menuContainer.style.display = "flex";
+            setTimeout(drawAllPreviews, 50);
+        }
+
+        // --- SISTEMAS DE TIENDA INTEGRALES ---
+        function clickSkin(id, cost) {
+            if (ownedSkins[id]) { equipSkin(id); } else {
+                if (coins >= cost) {
+                    coins -= cost; ownedSkins[id] = true; coinCountEl.innerText = coins;
+                    document.getElementById("skin" + id).classList.add("owned"); equipSkin(id);
+                } else { alert("No tienes suficientes monedas 🪙"); }
+            }
+        }
+
+        function equipSkin(id) {
+            isAdminPikachu = false; 
+            equippedSkin = id;
+            for (let i = 0; i < 11; i++) {
+                const itemEl = document.getElementById("skin" + i);
+                const statusEl = document.getElementById("status" + i);
+                if (itemEl && statusEl) {
+                    itemEl.classList.remove("equipped");
+                    if (ownedSkins[i]) statusEl.innerText = "Disponible";
+                }
+            }
+            document.getElementById("skin" + id).classList.add("equipped");
+            document.getElementById("status" + id).innerText = "Equipado";
+        }
+
+        function clickAura(id, cost) {
+            if (ownedAuras[id]) { equipAura(id); } else {
+                if (coins >= cost) {
+                    coins -= cost; ownedAuras[id] = true; coinCountEl.innerText = coins;
+                    document.getElementById("aura" + id).classList.add("owned"); equipAura(id);
+                } else { alert("No tienes suficientes monedas 🪙"); }
+            }
+        }
+
+        function equipAura(id) {
+            equippedAura = id;
+            for (let i = 0; i < 12; i++) {
+                const itemEl = document.getElementById("aura" + i);
+                const statusEl = document.getElementById("astatus" + i);
+                if (itemEl && statusEl) {
+                    itemEl.classList.remove("equipped");
+                    if (ownedAuras[i]) statusEl.innerText = "Disponible";
+                }
+            }
+            document.getElementById("aura" + id).classList.add("equipped");
+            document.getElementById("astatus" + id).innerText = "Equipado";
+        }
+
+        function buyDoubleJump() {
+            if (hasDoubleJump) {
+                alert("¡Ya tienes la habilidad de Doble Salto comprada!");
+                return;
+            }
+            if (coins >= 300) {
+                coins -= 300;
+                hasDoubleJump = true;
+                coinCountEl.innerText = coins;
+                document.getElementById("doubleJumpItem").classList.add("owned");
+                document.getElementById("doubleJumpItem").querySelector("button").innerText = "Comprado";
+                alert("👟 ¡Doble Salto comprado con éxito! Ahora puedes saltar una vez más en el aire.");
+            } else {
+                alert("No tienes suficientes monedas 🪙 (Cuesta 300)");
+            }
+        }
+
+        // REPARADO: Conexión nativa e inmediata con el campo input del HTML
+        function redeemCode() {
+            const inputField = document.getElementById("codeInputField");
+            if (!inputField) return;
+            
+            const input = inputField.value.trim().toLowerCase();
+            
+            if (input === "freeskin") {
+                let lockedSkins = [];
+                for (let i = 0; i < ownedSkins.length; i++) {
+                    if (!ownedSkins[i]) lockedSkins.push(i);
+                }
+                if (lockedSkins.length === 0) {
+                    alert("¡Ya tienes todas las skins disponibles!");
+                    return;
+                }
+                let randomId = lockedSkins[Math.floor(Math.random() * lockedSkins.length)];
+                ownedSkins[randomId] = true;
+                const el = document.getElementById("skin" + randomId);
+                if (el) el.classList.add("owned");
+                equipSkin(randomId);
+                alert("🎁 ¡Código Canjeado! Has desbloqueado una skin aleatoria.");
+            } 
+            else if (input === "admin") {
+                coins = 99999;
+                coinCountEl.innerText = coins;
+                ownedSkins = ownedSkins.map(() => true);
+                ownedAuras = ownedAuras.map(() => true);
+                hasDoubleJump = true;
+                
+                for(let i=0; i<11; i++) { const el = document.getElementById("skin"+i); if(el) el.classList.add("owned"); }
+                for(let i=0; i<12; i++) { const el = document.getElementById("aura"+i); if(el) el.classList.add("owned"); }
+                
+                const djBox = document.getElementById("doubleJumpItem");
+                if (djBox) {
+                    djBox.classList.add("owned");
+                    const djBtn = djBox.querySelector("button");
+                    if (djBtn) djBtn.innerText = "Comprado";
+                }
+                
+                isAdminPikachu = true;
+                equipSkin(0); 
+                alert("👑 ¡CÓDIGO ADMIN CANJEADO! Todo desbloqueado, Doble Salto activo, Monedas al máximo y Skin de Pikachu Equipada.");
+            } 
+            else {
+                alert("❌ Código inválido. Intenta con 'freeskin' o 'admin'.");
+            }
+            inputField.value = ""; 
+        }
+
+        function createParticles() {
+            if (equippedAura === 0) return; 
+            for (let i = 0; i < 2; i++) {
+                let p = {
+                    x: player.x + player.size / 4 + Math.random() * (player.size / 2),
+                    y: player.y + player.size - 5 + Math.random() * 10,
+                    vx: -gameSpeed * 0.3 - Math.random() * 2,
+                    vy: (Math.random() - 0.5) * 3, alpha: 1, size: Math.random() * 6 + 3, color: "#fff"
+                };
+                if (equippedAura === 1) { p.color = Math.random() > 0.4 ? "#ff4500" : "#ffcc00"; p.vy -= 1.5; } 
+                else if (equippedAura === 2) { p.color = Math.random() > 0.3 ? "#00ffff" : "#ffffff"; p.vy += 0.8; } 
+                else if (equippedAura === 3) { p.color = Math.random() > 0.5 ? "#ffff00" : "#00ffff"; p.size = Math.random() * 4 + 1; }
+                else if (equippedAura === 4) { p.color = Math.random() > 0.4 ? "#ff0055" : "#330033"; p.vy -= 1.2; }
+                else if (equippedAura === 5) { p.color = Math.random() > 0.3 ? "#9400d3" : "#4b0082"; p.size = Math.random() * 8 + 4; }
+                else if (equippedAura === 6) { p.color = Math.random() > 0.4 ? "#00ff66" : "#228b22"; p.vy += (Math.random() - 0.2) * 2; }
+                else if (equippedAura === 7) { p.color = Math.random() > 0.3 ? "#ffd700" : "#ffffff"; p.size = Math.random() * 3 + 1; }
+                else if (equippedAura === 8) { p.color = "#ff00ff"; p.size = 4; }
+                else if (equippedAura === 9) { p.color = "#ffffff"; p.size = Math.random() * 5 + 2; }
+                else if (equippedAura === 10) { p.color = "#ff66aa"; p.vy -= 0.5; }
+                else if (equippedAura === 11) { p.color = "#76ff03"; p.vy -= 0.8; }
+                particles.push(p);
+            }
+        }
+
+        let isPressing = false;
+        function jump() {
+            if (!isPlaying) return;
+            
+            if (player.isGrounded) {
+                player.ySpeed = player.jumpForce;
+                player.isGrounded = false;
+                jumpCount = 1; 
+            } 
+            else if (hasDoubleJump && jumpCount < 2) {
+                player.ySpeed = player.jumpForce * 0.95; 
+                player.isGrounded = false;
+                jumpCount = 2; 
+                
+                for (let i = 0; i < 8; i++) {
+                    particles.push({
+                        x: player.x + player.size / 2, y: player.y + player.size,
+                        vx: (Math.random() - 0.5) * 6, vy: Math.random() * 3 + 1,
+                        alpha: 1, size: Math.random() * 4 + 2, color: "#ffd700"
+                    });
+                }
+            }
+        }
+
+        window.addEventListener("keydown", (e) => { 
+            if (e.code === "Space" || e.code === "ArrowUp") {
+                jump();
+                isPressing = true; 
+            }
+        });
+        window.addEventListener("keyup", (e) => { if (e.code === "Space" || e.code === "ArrowUp") isPressing = false; });
+        canvas.addEventListener("mousedown", () => { jump(); isPressing = true; });
+        canvas.addEventListener("mouseup", () => isPressing = false);
 function drawSkinGraphics(pCtx, size, typeId) {
             pCtx.clearRect(0, 0, size, size);
             
@@ -427,7 +633,7 @@ function drawSkinGraphics(pCtx, size, typeId) {
             document.getElementById("info").style.display = "block";
             document.getElementById("ingameControls").style.display = "flex"; 
             player.y = floorY - player.size; player.ySpeed = 0; player.rotation = 0; player.isGrounded = true;
-            jumpCount = 0; buildLevel(); isPlaying = true;
+            particles = []; buildLevel(); isPlaying = true;
         }
 function update() {
             if (!isPlaying) return;
@@ -438,7 +644,7 @@ function update() {
 
             if (player.y >= floorY - player.size) {
                 player.y = floorY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
-                jumpCount = 0; // NUEVO: Limpia el contador al pisar el suelo principal
+                jumpCount = 0; 
             }
 
             createParticles();
@@ -455,7 +661,7 @@ function update() {
                     if (player.x + player.size > screenX + 2 && player.x < screenX + obs.width - 2 &&
                         player.y + player.size >= screenY - 8 && player.y + player.size <= screenY + 12 && player.ySpeed >= 0) {
                         player.y = screenY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
-                        jumpCount = 0; // NUEVO: Limpia el contador al pisar la superficie de un bloque
+                        jumpCount = 0; 
                     } else if (player.x + player.size > screenX && player.x < screenX + 12 && player.y + player.size > screenY + 4) {
                         resetGame();
                     }
