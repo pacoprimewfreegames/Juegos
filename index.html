@@ -1,3 +1,4 @@
+<!-- PARTE 1 DE 5: ESTRUCTURA DE AUTENTICACIÓN Y ESTILOS BASE -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -118,8 +119,7 @@
             width: 95px;
         }
         .btn-abrir-indice:hover { background: #ffe066; }
-
-        /* Botón de Códigos Flotante */
+        /* PARTE 2 DE 5: ESTILOS DE LOS MENÚS MODALES, CARTAS Y CALIDADES */
         .btn-abrir-codigos {
             position: fixed;
             left: 20px;
@@ -183,7 +183,7 @@
             z-index: 500;
             animation: pulse 1s infinite alternate;
         }
-/* PARTE 2: VENTANAS MODALES, SILUETAS INTERNAS, CALIDADES Y VARIANTES */
+
         .modal-fondo {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -245,7 +245,9 @@
         .indice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
         .indice-item { background: #202024; border: 1px solid #29292e; border-radius: 6px; padding: 8px; font-size: 12px; text-align: center; color: #7c7c8a; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .indice-item.descubierto { color: #fff; font-weight: bold; border-color: #4ade80; background: linear-gradient(135deg, #1b3d26, #202024); }
+        .indice-img { width: 60px; height: 60px; object-fit: contain; }
 
+        /* Estilos de entrada y botón de códigos y spawn */
         .input-codigo { width: 80%; padding: 10px; background: #202024; border: 2px solid #29292e; border-radius: 6px; color: white; font-size: 16px; margin-top: 15px; text-align: center; }
         .input-codigo:focus { border-color: #4ade80; outline: none; }
         .btn-canjear { background: #4ade80; color: #121214; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 15px; cursor: pointer; }
@@ -254,7 +256,7 @@
         /* Select de Suerte Admin */
         .select-admin { width: 80%; padding: 10px; background: #202024; border: 2px solid #7c3aed; border-radius: 6px; color: white; font-size: 16px; margin-top: 10px; text-align: center; }
 
-        /* Estructura de las Cartas */
+        /* Diseño de las Cartas */
         .carta { width: 160px; height: 225px; border-radius: 10px; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s; user-select: none; border: 3px solid #333; }
         .carta:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
         .carta .id { font-size: 11px; opacity: 0.7; }
@@ -263,12 +265,9 @@
         .carta .variante { font-size: 11px; font-weight: bold; text-align: center; color: #fff; text-shadow: 1px 1px 2px #000; }
         .carta .info { font-size: 11px; background: rgba(0,0,0,0.5); padding: 4px; border-radius: 4px; }
         
-        /* Caja de la Ilustración / Silueta interna si no carga */
-        .carta-img-box { width: 100%; height: 70px; background: rgba(0, 0, 0, 0.35); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin: 3px 0; overflow: hidden; position: relative; }
-        .carta-img { height: 100%; object-fit: contain; z-index: 2; position: relative; }
-        
-        /* Silueta geométrica auto-generada */
-        .silueta-backup { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.5); z-index: 1; position: absolute; }
+        /* Caja Contenedora de la Ilustración */
+        .carta-img-box { width: 100%; height: 70px; background: rgba(0, 0, 0, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin: 3px 0; overflow: hidden; position: relative; }
+        .carta-img { height: 100%; object-fit: contain; position: relative; z-index: 5; }
 
         /* Colores de Calidades (8 niveles) */
         .q1 { background: linear-gradient(135deg, #7a7a7a, #a8a8a8); color: white; } 
@@ -297,9 +296,8 @@
         .btn-borrar:hover { background: #cc3333; }
     </style>
 </head>
+<!-- PARTE 3 DE 5: ESTRUCTURA VISUAL HTML DEL JUEGO Y PANELES MODALES -->
 <body>
-    <!-- PARTE 3: PANTALLAS DE INTERFAZ, PANEL DE MENSAJES Y DECLARACIÓN DE CONFIGURACIONES -->
-    
     <!-- Banner superior flotante para anuncios globales del Admin -->
     <div id="banner-global" class="chat-banner"></div>
 
@@ -314,25 +312,16 @@
         <button class="auth-btn" style="background: #2b7a3a; color: white;" onclick="registrarUsuario()">Registrarse</button>
     </div>
 
-    <!-- Bloque Principal del Juego (Oculto hasta autenticarse) -->
+    <!-- Bloque Principal del Juego (Oculto antes del login) -->
     <div id="juego-principal">
-        
-        <!-- Botón flotante del libro (Índice) -->
         <button class="btn-abrir-indice" onclick="abrirIndice()">
-            <span>📖</span>
-            <span>ÍNDICE</span>
+            <span>📖</span><span>ÍNDICE</span>
         </button>
-
-        <!-- Botón flotante de códigos (CÓDIGOS) -->
         <button class="btn-abrir-codigos" onclick="abrirCodigos()">
-            <span>🔑</span>
-            <span>CÓDIGOS</span>
+            <span>🔑</span><span>CÓDIGOS</span>
         </button>
-
-        <!-- Botón flotante de Admin Exclusivo para Pacoprimew (Corona) -->
         <button id="btn-admin-corona" class="btn-abrir-admin" onclick="abrirAdmin()">
-            <span>👑</span>
-            <span>ADMIN</span>
+            <span>👑</span><span>ADMIN</span>
         </button>
 
         <!-- Ventana emergente del Índice -->
@@ -356,7 +345,7 @@
             </div>
         </div>
 
-        <!-- Ventana emergente de Administración (Solo Pacoprimew) -->
+        <!-- Ventana de Administración (Solo Pacoprimew) -->
         <div class="modal-fondo" id="modal-admin">
             <div class="admin-container">
                 <button class="btn-cerrar-indice" onclick="cerrarAdmin()">X</button>
@@ -370,6 +359,10 @@
                     <option value="8">Suerte Masiva (8x)</option>
                     <option value="16">Suerte Divina (16x)</option>
                 </select>
+
+                <p style="font-size: 14px; margin-top: 15px; margin-bottom: 5px; color: #a8a8b3;">Generar (Spawn) Pokémon por ID:</p>
+                <input type="number" id="input-spawn-id" class="input-codigo" style="border-color: #7c3aed;" placeholder="Introduce ID del 1 al 150..." min="1" max="150">
+                <button class="btn-canjear" style="background: #7c3aed; color: white; margin-top: 8px;" onclick="spawnearPokemon()">Spawnear Pokémon</button>
 
                 <p style="font-size: 14px; margin-top: 15px; margin-bottom: 5px; color: #a8a8b3;">Enviar Anuncio Global a la pantalla:</p>
                 <input type="text" id="input-anuncio-admin" class="input-codigo" style="border-color: #7c3aed;" placeholder="Escribe algo y pulsa Enter..." onkeydown="enviarAnuncioTeclado(event)">
@@ -392,16 +385,14 @@
         <div class="seccion-titulo">Tu Álbum de Cartas (Máximo 20)</div>
         <div class="album-container" id="album"></div>
     </div>
-
+    <!-- PARTE 4 DE 5: JAVASCRIPT - CONFIGURACIÓN, REGISTRO Y CONFIGURACIONES ADMIN -->
     <script>
-        // Variables globales
+        // Variables globales del juego
         let usuarioActivo = "";
         let dinero = 100;
         let mercado = [];
         let album = [];
         const MAX_ALBUM = 20;
-
-        // Modificadores de Suerte Especiales administrados por Pacoprimew
         let suerteAdminFactor = 1;
 
         let cartasDescubiertas = {
@@ -422,43 +413,33 @@
             { nivel: 8, nombre: "Ancestral", prob: 0.2, costBase: 100000, gpsBase: 5000, clase: "q8" }
         ];
 
-        // Configuración de Variantes (Multiplicadores de valor)
+        // Configuración de Variantes (Multiplicadores con probabilidades reducidas y más difíciles)
         const VARIANTES = [
             { nombre: "Normal", mult: 1, prob: 60, clase: "" },
-            { nombre: "Oro", mult: 3, prob: 15, clase: "v-oro" },
-            { nombre: "Diamante", mult: 5, prob: 10, clase: "v-diamante" },
-            { nombre: "V", mult: 7, prob: 7, clase: "v-v" },
-            { nombre: "GX", mult: 9, prob: 5, clase: "v-gx" },
-            { nombre: "Vmax", mult: 12, prob: 2, clase: "v-vmax" },
-            { nombre: "Teracristal", mult: 15, prob: 1, clase: "v-tera" }
+            { nombre: "Oro", mult: 3, prob: 10, clase: "v-oro" },
+            { nombre: "Diamante", mult: 5, prob: 5, clase: "v-diamante" },
+            { nombre: "V", mult: 7, prob: 4, clase: "v-v" },
+            { nombre: "GX", mult: 9, prob: 2, clase: "v-gx" },
+            { nombre: "Vmax", mult: 12, prob: 0.8, clase: "v-vmax" },
+            { nombre: "Teracristal", mult: 15, prob: 0.2, clase: "v-tera" }
         ];
 
-        // Nombres base de las cartas
+        // Lista de nombres base de las cartas
         const POKE_NAMES = ["Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", "Pikachu", "Raichu", "Nidoran", "Clefairy", "Vulpix", "Ninetales", "Jigglypuff", "Zubat", "Oddish", "Gloom", "Diglett", "Meowth", "Psyduck", "Growlithe", "Arcanine", "Poliwag", "Abra", "Kadabra", "Alakazam", "Machop", "Bellsprout", "Tentacool", "Geodude", "Graveler", "Golem", "Ponyta", "Slowpoke", "Magnemite", "Gastly", "Haunter", "Gengar", "Onix", "Eevee", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonite", "Mewtwo", "Mew"];
-// PARTE 4 (Mesa 1): SISTEMA DE CUENTAS, CONTROL DE INICIO DE SESIÓN Y REGISTRO
+
         function registrarUsuario() {
             let user = document.getElementById('auth-usuario').value.trim();
             let pass = document.getElementById('auth-pass').value;
-
-            if (user === "" || pass === "") {
-                alert("Por favor, rellena todos los campos.");
-                return;
-            }
+            if (user === "" || pass === "") { alert("Por favor, rellena todos los campos."); return; }
 
             let cuentas = JSON.parse(localStorage.getItem('poke_cuentas')) || {};
-            if (cuentas[user]) {
-                alert("¡Este nombre de usuario ya existe! Elige otro irrepetible.");
-                return;
-            }
+            if (cuentas[user]) { alert("¡Este nombre de usuario ya existe! Elige otro irrepetible."); return; }
 
             cuentas[user] = {
-                password: pass,
-                dinero: 100,
-                album: [],
+                password: pass, dinero: 100, album: [],
                 cartasDescubiertas: { "Normal": {}, "Oro": {}, "Diamante": {}, "V": {}, "GX": {}, "Vmax": {}, "Teracristal": {} },
                 codigosUsados: {}
             };
-
             localStorage.setItem('poke_cuentas', JSON.stringify(cuentas));
             alert("¡Usuario registrado con éxito! Ya puedes iniciar sesión.");
         }
@@ -466,13 +447,9 @@
         function iniciarSesion() {
             let user = document.getElementById('auth-usuario').value.trim();
             let pass = document.getElementById('auth-pass').value;
-
             let cuentas = JSON.parse(localStorage.getItem('poke_cuentas')) || {};
 
-            if (!cuentas[user] || cuentas[user].password !== pass) {
-                alert("Usuario o contraseña incorrectos.");
-                return;
-            }
+            if (!cuentas[user] || cuentas[user].password !== pass) { alert("Usuario o contraseña incorrectos."); return; }
 
             usuarioActivo = user;
             dinero = cuentas[user].dinero;
@@ -484,11 +461,7 @@
             document.getElementById('juego-principal').style.display = 'flex';
             document.getElementById('saludo-entrenador').innerText = "Álbum de " + usuarioActivo;
 
-            // ACTIVACIÓN EXCLUSIVA ADMIN PARA PACOPRIMEW (Añade corona y controles)
-            if (usuarioActivo === "Pacoprimew") {
-                document.getElementById('btn-admin-corona').style.display = 'flex';
-                alert("¡Bienvenido, Creador Pacoprimew! Panel de Administración Activo.");
-            }
+            if (usuarioActivo === "Pacoprimew") { document.getElementById('btn-admin-corona').style.display = 'flex'; }
 
             iniciarMercado();
             reiniciarBarraTiempo();
@@ -512,34 +485,64 @@
         function cerrarIndice() { document.getElementById('modal-indice').style.display = 'none'; }
         function abrirCodigos() { document.getElementById('input-codigo-promo').value = ""; document.getElementById('modal-codigos').style.display = 'flex'; }
         function cerrarCodigos() { document.getElementById('modal-codigos').style.display = 'none'; }
-        
-        // Controladores del Menú Admin
         function abrirAdmin() { document.getElementById('input-anuncio-admin').value = ""; document.getElementById('modal-admin').style.display = 'flex'; }
         function cerrarAdmin() { document.getElementById('modal-admin').style.display = 'none'; }
 
         function cambiarSuerteAdmin() {
             suerteAdminFactor = parseFloat(document.getElementById('select-suerte-admin').value);
-            alert("Suerte del servidor alterada con éxito a: " + suerteAdminFactor + "x");
+            let paraMi = confirm("¿Quieres activar esta suerte de " + suerteAdminFactor + "x solo para ti? (Pulsa Cancelar para aplicarla a todo el mundo)");
+            if (paraMi) { alert("Suerte alterada a " + suerteAdminFactor + "x EXCLUSIVAMENTE para Pacoprimew."); }
+            else { alert("Suerte alterada a " + suerteAdminFactor + "x para TODO EL MUNDO."); }
         }
 
         function enviarAnuncioTeclado(e) {
             if (e.key === 'Enter') {
                 let msg = document.getElementById('input-anuncio-admin').value.trim();
                 if (msg === "") return;
-                
                 let banner = document.getElementById('banner-global');
                 banner.innerText = "Pacoprimew: " + msg;
                 banner.style.display = 'block';
-
                 cerrarAdmin();
-
-                // Ocultar el banner automáticamente a los 5 segundos
-                setTimeout(() => {
-                    banner.style.display = 'none';
-                }, 5000);
+                setTimeout(() => { banner.style.display = 'none'; }, 5000);
             }
         }
-// PARTE 4 (Mesa 2): CANJEO DE CÓDIGOS, GENERACIÓN DE CARTAS Y RENDERIZADO VISUAL
+        // PARTE 5 DE 5 (Parte A): ACCIONES ADMIN, COMPRAS Y CINTA DEL MERCADO
+        function spawnearPokemon() {
+            let idIngresado = parseInt(document.getElementById('input-spawn-id').value);
+            if (isNaN(idIngresado) || idIngresado < 1 || idIngresado > 150) {
+                alert("Por favor, introduce un ID de Pokémon válido entre 1 y 150.");
+                return;
+            }
+            if (album.length >= MAX_ALBUM) {
+                alert("¡Tu Álbum está lleno! Borra una carta para hacer espacio.");
+                return;
+            }
+
+            let nombreBase = POKE_NAMES[idIngresado % POKE_NAMES.length];
+            let cal = obtenerAleatorioPorProbabilidad(CALIDADES);
+            let varElegida = obtenerAleatorioPorProbabilidad(VARIANTES);
+
+            let costoFinal = cal.costBase * varElegida.mult;
+            let gpsFinal = cal.gpsBase * varElegida.mult;
+
+            let nuevaCarta = {
+                id: idIngresado, nombre: nombreBase,
+                calidadNombre: cal.nombre, calidadClase: cal.clase,
+                varianteNombre: varElegida.nombre, varianteClase: varElegida.clase,
+                costo: costoFinal, gps: gpsFinal,
+                albumId: Date.now() + Math.random()
+            };
+
+            album.push(nuevaCarta);
+            cartasDescubiertas[varElegida.nombre][idIngresado] = nombreBase;
+            
+            guardarProgreso();
+            actualizarUI();
+            dibujarAlbum();
+            cerrarAdmin();
+            alert("¡Se ha generado con éxito un #" + idIngresado + " " + nombreBase + " " + varElegida.nombre + " en tu álbum!");
+        }
+
         function validarCodigo() {
             let codigoIngresado = document.getElementById('input-codigo-promo').value.trim();
             if (codigoIngresado === "200money") {
@@ -554,7 +557,9 @@
         function obtenerAleatorioPorProbabilidad(lista) {
             let modLista = lista.map(el => {
                 if (suerteAdminFactor > 1) {
-                    if (el.nivel === 1) return { ...el, prob: Math.max(1, el.prob / suerteAdminFactor) };
+                    if (el.nivel === 1 || (!el.nivel && el.nombre === "Normal")) {
+                        return { ...el, prob: Math.max(1, el.prob / suerteAdminFactor) };
+                    }
                     return { ...el, prob: el.prob * suerteAdminFactor };
                 }
                 return el;
@@ -565,7 +570,7 @@
             let acumulado = 0;
             for (let el of modLista) {
                 acumulado += el.prob;
-                if (r <= acumulado) return lista.find(orig => orig.nivel === el.nivel);
+                if (r <= acumulado) return lista.find(orig => (orig.nivel ? orig.nivel === el.nivel : orig.nombre === el.nombre));
             }
             return lista;
         }
@@ -597,26 +602,27 @@
 
         function reiniciarBarraTiempo() {
             const barra = document.getElementById('barra');
-            barra.style.transition = 'none'; barra.style.width = '100%';
-            setTimeout(() => { barra.style.transition = 'width 10s linear'; barra.style.width = '0%'; }, 50);
+            if (barra) {
+                barra.style.transition = 'none'; barra.style.width = '100%';
+                setTimeout(() => { barra.style.transition = 'width 10s linear'; barra.style.width = '0%'; }, 50);
+            }
         }
-
+        // PARTE 5 DE 5 (Parte B): RENDERIZADO VISUAL, ÁLBUM, ÍNDICE HISTÓRICO Y CIERRES
         function dibujarMercado() {
             const contenedor = document.getElementById('mercado');
+            if (!contenedor) return;
             contenedor.querySelectorAll('.carta').forEach(c => c.remove());
 
             mercado.forEach((carta, index) => {
                 let div = document.createElement('div');
                 div.className = `carta ${carta.calidadClase} ${carta.varianteClase}`;
                 let idPad = String(carta.id).padStart(3, '0');
-                let urlImagen = "https://githubusercontent.com" + carta.id + ".png";
                 
                 div.innerHTML = `
                     <div class="id">#${idPad}</div>
                     <div class="calidad">${carta.calidadNombre}</div>
                     <div class="carta-img-box">
                         <div class="silueta-backup">#${carta.id}</div>
-                        <img class="carta-img" src="${urlImagen}" alt="${carta.nombre}">
                     </div>
                     <div class="nombre">${carta.nombre}</div>
                     <div class="variante">${carta.varianteNombre !== 'Normal' ? carta.varianteNombre : ''}</div>
@@ -628,13 +634,12 @@
         }
 
         function comprarCarta(index) {
-            let MathRandom = Math.random();
             let carta = mercado[index];
             if (dinero < carta.costo) { alert("¡No tienes suficiente dinero!"); return; }
             if (album.length >= MAX_ALBUM) { alert("¡Tu Álbum está lleno! Borra una carta para hacer espacio."); return; }
 
             dinero -= carta.costo;
-            album.push({...carta, albumId: Date.now() + MathRandom}); 
+            album.push({...carta, albumId: Date.now() + Math.random()}); 
             cartasDescubiertas[carta.varianteNombre][carta.id] = carta.nombre;
             mercado[index] = crearCartaAleatoria();
             
@@ -651,6 +656,7 @@
 
         function dibujarAlbum() {
             const contenedor = document.getElementById('album');
+            if (!contenedor) return;
             contenedor.innerHTML = '';
 
             album.forEach((carta) => {
@@ -658,14 +664,12 @@
                 div.className = `carta ${carta.calidadClase} ${carta.varianteClase}`;
                 div.style.width = '145px'; div.style.height = '225px'; div.style.cursor = 'default';
                 let idPad = String(carta.id).padStart(3, '0');
-                let urlImagen = "https://githubusercontent.com" + carta.id + ".png";
                 
                 div.innerHTML = `
                     <div class="id">#${idPad}</div>
                     <div class="calidad" style="font-size:10px;">${carta.calidadNombre}</div>
                     <div class="carta-img-box" style="height:60px;">
                         <div class="silueta-backup" style="width:35px; height:35px; font-size:11px;">#${carta.id}</div>
-                        <img class="carta-img" src="${urlImagen}" alt="${carta.nombre}">
                     </div>
                     <div class="nombre" style="font-size:13px;">${carta.nombre}</div>
                     <div class="variante" style="font-size:10px;">${carta.varianteNombre !== 'Normal' ? carta.varianteNombre : ''}</div>
@@ -678,6 +682,7 @@
 
         function dibujarPestanasIndice() {
             const contenedor = document.getElementById('indice-pestanas');
+            if (!contenedor) return;
             contenedor.innerHTML = '';
             VARIANTES.forEach(v => {
                 let btn = document.createElement('button');
@@ -690,6 +695,7 @@
 
         function dibujarIndice() {
             const contenedor = document.getElementById('indice-grid');
+            if (!contenedor) return;
             contenedor.innerHTML = '';
 
             for (let i = 1; i <= 150; i++) {
@@ -698,13 +704,11 @@
                 let idPad = String(i).padStart(3, '0');
                 
                 if (nombreDescubierto) {
-                    let urlImagen = "https://githubusercontent.com" + i + ".png";
                     div.className = "indice-item descubierto";
                     div.innerHTML = `
                         <div>#${idPad}</div>
                         <div class="carta-img-box" style="width:50px; height:50px; background:transparent;">
                             <div class="silueta-backup" style="width:30px; height:30px; font-size:10px;">#${i}</div>
-                            <img class="indice-img" src="${urlImagen}" alt="${nombreDescubierto}">
                         </div>
                         <div>${nombreDescubierto}</div>
                     `;
@@ -719,9 +723,12 @@
         function obtenerGPS() { return album.reduce((sum, c) => sum + c.gps, 0); }
         
         function actualizarUI() {
-            document.getElementById('txt-dinero').innerText = Math.floor(dinero);
-            document.getElementById('txt-gps').innerText = obtenerGPS();
-            document.getElementById('txt-album-cant').innerText = album.length;
+            let d = document.getElementById('txt-dinero');
+            let g = document.getElementById('txt-gps');
+            let a = document.getElementById('txt-album-cant');
+            if (d) d.innerText = Math.floor(dinero);
+            if (g) g.innerText = obtenerGPS();
+            if (a) a.innerText = album.length;
         }
 
         setInterval(() => {
