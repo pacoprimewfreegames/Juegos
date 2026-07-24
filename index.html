@@ -1,4 +1,4 @@
-<!-- PARTE 1 DE 5: ESTRUCTURA DE AUTENTICACIÓN Y ESTILOS BASE -->
+<!-- PARTE 1 DE 5: ESTRUCTURA DE AUTENTICACIÓN, BOTONES FLOTANTES Y ESTILOS BASE CSS -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -62,7 +62,7 @@
         }
 
         .marcador {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             background: #202024;
             padding: 10px 20px;
@@ -71,6 +71,8 @@
             margin-bottom: 20px;
             display: flex;
             gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .seccion-titulo { width: 100%; max-width: 900px; margin: 15px 0 5px 0; font-size: 18px; color: #a8a8b3; }
         
@@ -96,11 +98,11 @@
             transition: width 10s linear;
         }
 
-        /* Botón de Índice Flotante a la Izquierda (Libro) */
+        /* Botonera Flotante Agrupada a la Izquierda */
         .btn-abrir-indice {
             position: fixed;
             left: 20px;
-            top: 38%;
+            top: 32%;
             transform: translateY(-50%);
             background: #ffcb05;
             color: #121214;
@@ -119,11 +121,11 @@
             width: 95px;
         }
         .btn-abrir-indice:hover { background: #ffe066; }
-        /* PARTE 2 DE 5: ESTILOS DE LOS MENÚS MODALES, CARTAS Y CALIDADES */
+        /* PARTE 2 DE 5 (Bloque A): BOTONES FLOTANTES E INTERFAZ LATERAL */
         .btn-abrir-codigos {
             position: fixed;
             left: 20px;
-            top: 50%;
+            top: 44%;
             transform: translateY(-50%);
             background: #2b7a3a;
             color: white;
@@ -143,11 +145,35 @@
         }
         .btn-abrir-codigos:hover { background: #3fa255; }
 
+        /* Nuevo Botón de Rebirth Flotante a la Izquierda */
+        .btn-abrir-rebirth {
+            position: fixed;
+            left: 20px;
+            top: 56%;
+            transform: translateY(-50%);
+            background: #0369a1;
+            color: white;
+            border: 3px solid #38bdf8;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            width: 95px;
+        }
+        .btn-abrir-rebirth:hover { background: #0284c7; }
+
         /* Botón Especial de Admin Exclusivo para Pacoprimew (Corona) */
         .btn-abrir-admin {
             position: fixed;
             left: 20px;
-            top: 62%;
+            top: 68%;
             transform: translateY(-50%);
             background: #7c3aed;
             color: white;
@@ -157,7 +183,7 @@
             font-size: 13px;
             font-weight: bold;
             cursor: pointer;
-            display: none; /* Se activa por código si eres Pacoprimew */
+            display: none;
             flex-direction: column;
             align-items: center;
             gap: 5px;
@@ -183,7 +209,7 @@
             z-index: 500;
             animation: pulse 1s infinite alternate;
         }
-
+        /* PARTE 2 DE 5 (Bloque B): MENÚS MODALES, DISEÑO DE CARTAS Y CALIDADES */
         .modal-fondo {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -216,7 +242,6 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             text-align: center;
         }
-        /* Caja del modal de administración */
         .admin-container {
             width: 90%;
             max-width: 450px;
@@ -247,16 +272,13 @@
         .indice-item.descubierto { color: #fff; font-weight: bold; border-color: #4ade80; background: linear-gradient(135deg, #1b3d26, #202024); }
         .indice-img { width: 60px; height: 60px; object-fit: contain; }
 
-        /* Estilos de entrada y botón de códigos y spawn */
         .input-codigo { width: 80%; padding: 10px; background: #202024; border: 2px solid #29292e; border-radius: 6px; color: white; font-size: 16px; margin-top: 15px; text-align: center; }
         .input-codigo:focus { border-color: #4ade80; outline: none; }
         .btn-canjear { background: #4ade80; color: #121214; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 15px; cursor: pointer; }
         .btn-canjear:hover { background: #3fa255; }
         
-        /* Select de Suerte Admin */
         .select-admin { width: 80%; padding: 10px; background: #202024; border: 2px solid #7c3aed; border-radius: 6px; color: white; font-size: 16px; margin-top: 10px; text-align: center; }
 
-        /* Diseño de las Cartas */
         .carta { width: 160px; height: 225px; border-radius: 10px; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s; user-select: none; border: 3px solid #333; }
         .carta:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
         .carta .id { font-size: 11px; opacity: 0.7; }
@@ -265,14 +287,9 @@
         .carta .variante { font-size: 11px; font-weight: bold; text-align: center; color: #fff; text-shadow: 1px 1px 2px #000; }
         .carta .info { font-size: 11px; background: rgba(0,0,0,0.5); padding: 4px; border-radius: 4px; }
         
-        /* Caja Contenedora de la Ilustración */
         .carta-img-box { width: 100%; height: 70px; background: rgba(0, 0, 0, 0.25); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin: 3px 0; overflow: hidden; position: relative; }
-        .carta-img { height: 100%; object-fit: contain; position: relative; z-index: 5; }
-        
-        /* Silueta de respaldo con ID si internet falla localmente */
         .silueta-backup { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.5); position: absolute; z-index: 1; }
 
-        /* Colores de Calidades (8 niveles) */
         .q1 { background: linear-gradient(135deg, #7a7a7a, #a8a8a8); color: white; } 
         .q2 { background: linear-gradient(135deg, #2b7a3a, #4ade80); color: white; } 
         .q3 { background: linear-gradient(135deg, #1d4ed8, #60a5fa); color: white; } 
@@ -282,7 +299,6 @@
         .q7 { background: linear-gradient(135deg, #0369a1, #38bdf8); color: white; border-color: #38bdf8; } 
         .q8 { background: linear-gradient(135deg, #0f172a, #334155); color: #f8fafc; border-color: #ffff00; box-shadow: 0 0 10px #ffff00; } 
 
-        /* Efectos de Variantes */
         .v-oro { border-color: #ffd700 !important; box-shadow: inset 0 0 15px rgba(255,215,0,0.6); }
         .v-diamante { border-color: #00ffff !important; box-shadow: inset 0 0 15px rgba(0,255,255,0.6); }
         .v-v { border-color: #ff0055 !important; }
@@ -290,13 +306,12 @@
         .v-vmax { border-color: #ff00ff !important; animation: pulse 1.5s infinite; }
         .v-tera { border-color: #ffffff !important; background-image: linear-gradient(45deg, #ff007f, #7f00ff, #00ffff, #ff007f) !important; background-size: 300% 300% !important; animation: rainbow 4s linear infinite; }
 
-        /* Álbum de cartas (Máximo 20) */
         .album-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; max-width: 900px; background: #1a1a1e; padding: 15px; border-radius: 12px; min-height: 150px; box-sizing: border-box; }
         .btn-borrar { background: #ff4747; color: white; border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 3px; width: 100%; }
         .btn-borrar:hover { background: #cc3333; }
     </style>
 </head>
-<!-- PARTE 3 DE 5: ESTRUCTURA VISUAL HTML DEL JUEGO Y PANELES MODALES -->
+<!-- PARTE 3 DE 5: ESTRUCTURA VISUAL HTML DEL JUEGO Y PANEL DE REBIRTH -->
 <body>
     <!-- Banner superior flotante para anuncios globales del Admin -->
     <div id="banner-global" class="chat-banner"></div>
@@ -320,6 +335,9 @@
         <button class="btn-abrir-codigos" onclick="abrirCodigos()">
             <span>🔑</span><span>CÓDIGOS</span>
         </button>
+        <button class="btn-abrir-rebirth" onclick="abrirRebirthModal()">
+            <span>🔄</span><span>REBIRTH</span>
+        </button>
         <button id="btn-admin-corona" class="btn-abrir-admin" onclick="abrirAdmin()">
             <span>👑</span><span>ADMIN</span>
         </button>
@@ -342,6 +360,21 @@
                 <input type="text" id="input-codigo-promo" class="input-codigo" placeholder="Escribe el código aquí...">
                 <br>
                 <button class="btn-canjear" onclick="validarCodigo()">Canjear Código</button>
+            </div>
+        </div>
+
+        <!-- Ventana emergente de Rebirth -->
+        <div class="modal-fondo" id="modal-rebirth">
+            <div class="codigo-container" style="border-color: #38bdf8;">
+                <button class="btn-cerrar-indice" onclick="cerrarRebirthModal()">X</button>
+                <div class="seccion-titulo" style="margin-top: 0; color: #38bdf8; text-align: center;">Renacimiento Espiritual</div>
+                <p style="font-size: 14px; color: #a8a8b3; text-align: left; margin-top: 15px;">
+                    Al renacer reiniciarás tu dinero a 100 $ y vaciarás tu álbum actual, pero ganarás **+2 espacios de álbum permanentes** y mantendrás todo tu índice descubierto intacto.
+                </p>
+                <div style="font-size: 16px; font-weight: bold; margin: 15px 0; color: #fff;">
+                    Coste del siguiente Rebirth: <span id="txt-costo-rebirth" style="color: #4ade80;">500</span> $
+                </div>
+                <button class="btn-canjear" style="background: #0369a1; color: white;" onclick="ejecutarRebirth()">Renacer Ahora</button>
             </div>
         </div>
 
@@ -374,7 +407,8 @@
         <div class="marcador">
             <div>Dinero: <span id="txt-dinero" style="color: #4ade80;">100</span> $</div>
             <div>Generación: <span id="txt-gps" style="color: #60a5fa;">0</span> $/s</div>
-            <div>Álbum: <span id="txt-album-cant">0</span>/20</div>
+            <div>Renacimientos: <span id="txt-rebirths-cant" style="color: #a78bfa;">0</span></div>
+            <div>Álbum: <span id="txt-album-cant">0</span>/<span id="txt-album-max">20</span></div>
         </div>
 
         <div class="seccion-titulo">Mercado en movimiento (Haz clic para comprar la carta)</div>
@@ -382,17 +416,18 @@
             <div class="barra-tiempo" id="barra"></div>
         </div>
 
-        <div class="seccion-titulo">Tu Álbum de Cartas (Máximo 20)</div>
+        <div class="seccion-titulo">Tu Álbum de Cartas</div>
         <div class="album-container" id="album"></div>
     </div>
-    <!-- PARTE 4 DE 5: JAVASCRIPT - CONFIGURACIÓN, REGISTRO Y REFRESO MULTIJUGADOR -->
+    <!-- PARTE 4 DE 5: JAVASCRIPT - CONFIGURACIÓN, CUENTAS Y SINCRONIZACIÓN ANTIBLOQUEO -->
     <script>
-        // Variables globales del juego
+        // Variables globales del juego (se cargan por cuenta de usuario)
         let usuarioActivo = "";
         let dinero = 100;
         let mercado = [];
         let album = [];
-        const MAX_ALBUM = 20;
+        let rebirths = 0;
+        let maxAlbumDinamico = 20;
         let suerteAdminFactor = 1;
 
         let cartasDescubiertas = {
@@ -424,7 +459,6 @@
             { nombre: "Teracristal", mult: 15, prob: 0.2, clase: "v-tera" }
         ];
 
-        // Lista de nombres base de las cartas
         const POKE_NAMES = ["Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", "Pikachu", "Raichu", "Nidoran", "Clefairy", "Vulpix", "Ninetales", "Jigglypuff", "Zubat", "Oddish", "Gloom", "Diglett", "Meowth", "Psyduck", "Growlithe", "Arcanine", "Poliwag", "Abra", "Kadabra", "Alakazam", "Machop", "Bellsprout", "Tentacool", "Geodude", "Graveler", "Golem", "Ponyta", "Slowpoke", "Magnemite", "Gastly", "Haunter", "Gengar", "Onix", "Eevee", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonite", "Mewtwo", "Mew"];
 
         function registrarUsuario() {
@@ -436,7 +470,7 @@
             if (cuentas[user]) { alert("¡Este nombre de usuario ya existe! Elige otro irrepetible."); return; }
 
             cuentas[user] = {
-                password: pass, dinero: 100, album: [],
+                password: pass, dinero: 100, album: [], rebirths: 0,
                 cartasDescubiertas: { "Normal": {}, "Oro": {}, "Diamante": {}, "V": {}, "GX": {}, "Vmax": {}, "Teracristal": {} },
                 codigosUsados: {}
             };
@@ -454,6 +488,8 @@
             usuarioActivo = user;
             dinero = cuentas[user].dinero;
             album = cuentas[user].album || [];
+            rebirths = cuentas[user].rebirths || 0;
+            maxAlbumDinamico = 20 + (rebirths * 2); // Calcula espacios según Rebirths
             cartasDescubiertas = cuentas[user].cartasDescubiertas || cartasDescubiertas;
             codigosUsados = cuentas[user].codigosUsados || {};
 
@@ -475,6 +511,7 @@
             if (cuentas[usuarioActivo]) {
                 cuentas[usuarioActivo].dinero = dinero;
                 cuentas[usuarioActivo].album = album;
+                cuentas[usuarioActivo].rebirths = rebirths;
                 cuentas[usuarioActivo].cartasDescubiertas = cartasDescubiertas;
                 cuentas[usuarioActivo].codigosUsados = codigosUsados;
                 localStorage.setItem('poke_cuentas', JSON.stringify(cuentas));
@@ -487,12 +524,14 @@
         function cerrarCodigos() { document.getElementById('modal-codigos').style.display = 'none'; }
         function abrirAdmin() { document.getElementById('input-anuncio-admin').value = ""; document.getElementById('modal-admin').style.display = 'flex'; }
         function cerrarAdmin() { document.getElementById('modal-admin').style.display = 'none'; }
+        function abrirRebirthModal() { calcularCostoRebirthUI(); document.getElementById('modal-rebirth').style.display = 'flex'; }
+        function cerrarRebirthModal() { document.getElementById('modal-rebirth').style.display = 'none'; }
 
+        // SINCRONIZACIÓN EN RED LOCAL TRANSPARENTE (Soporta archivos locales file:///)
         function cambiarSuerteAdmin() {
-            suerteAdminFactor = parseFloat(document.getElementById('select-suerte-admin').value);
-            localStorage.setItem('poke_suerte_global', suerteAdminFactor);
-            localStorage.setItem('poke_suerte_tiempo', Date.now()); 
-            lanzarBannerGlobal("pacoprimew a activado suerte " + suerteAdminFactor + "!");
+            let valorSuerte = document.getElementById('select-suerte-admin').value;
+            let packSuerte = { suerte: valorSuerte, tiempo: Date.now() };
+            localStorage.setItem('poke_suerte_pack', JSON.stringify(packSuerte));
             cerrarAdmin();
         }
 
@@ -500,9 +539,8 @@
             if (e.key === 'Enter') {
                 let msg = document.getElementById('input-anuncio-admin').value.trim();
                 if (msg === "") return;
-                localStorage.setItem('poke_anuncio_global', "Pacoprimew: " + msg);
-                localStorage.setItem('poke_anuncio_tiempo', Date.now()); 
-                lanzarBannerGlobal("Pacoprimew: " + msg);
+                let packMsg = { mensaje: "Pacoprimew: " + msg, tiempo: Date.now() };
+                localStorage.setItem('poke_anuncio_pack', JSON.stringify(packMsg));
                 cerrarAdmin();
             }
         }
@@ -514,38 +552,72 @@
             setTimeout(() => { banner.style.display = 'none'; }, 5000);
         }
 
-        let ultimoAnuncioTiempo = localStorage.getItem('poke_anuncio_tiempo') || 0;
-        let ultimaSuerteTiempo = localStorage.getItem('poke_suerte_tiempo') || 0;
+        // BUCLE OBLIGATORIO DE REFRESH (300ms) - Ejecuta la lectura saltándose la seguridad CORS local
+        let ultimoAnuncioCheck = 0;
+        let ultimaSuerteCheck = 0;
 
         setInterval(() => {
-            let promoAnuncioTiempo = localStorage.getItem('poke_anuncio_tiempo') || 0;
-            if (promoAnuncioTiempo !== ultimoAnuncioTiempo) {
-                ultimoAnuncioTiempo = promoAnuncioTiempo;
-                let textoAnuncio = localStorage.getItem('poke_anuncio_global');
-                if (textoAnuncio) lanzarBannerGlobal(textoAnuncio);
-            }
-
-            let promoSuerteTiempo = localStorage.getItem('poke_suerte_tiempo') || 0;
-            if (promoSuerteTiempo !== ultimaSuerteTiempo) {
-                ultimaSuerteTiempo = promoSuerteTiempo;
-                let textoSuerte = localStorage.getItem('poke_suerte_global');
-                if (textoSuerte) {
-                    suerteAdminFactor = parseFloat(textoSuerte);
-                    lanzarBannerGlobal("pacoprimew a activado suerte " + textoSuerte + "!");
-                    let sel = document.getElementById('select-suerte-admin');
-                    if (sel) sel.value = textoSuerte;
+            let jsonAnuncio = localStorage.getItem('poke_anuncio_pack');
+            if (jsonAnuncio) {
+                let obj = JSON.parse(jsonAnuncio);
+                if (obj.tiempo !== ultimoAnuncioCheck) {
+                    ultimoAnuncioCheck = obj.tiempo;
+                    lanzarBannerGlobal(obj.mensaje);
                 }
             }
-        }, 500);
-        // PARTE 5 DE 5 (Parte A): SPAWN, CÓDIGOS Y CONTROL DE PROBABILIDADES GLOBALES
+            let jsonSuerte = localStorage.getItem('poke_suerte_pack');
+            if (jsonSuerte) {
+                let obj = JSON.parse(jsonSuerte);
+                if (obj.tiempo !== ultimaSuerteCheck) {
+                    ultimaSuerteCheck = obj.tiempo;
+                    suerteAdminFactor = parseFloat(obj.suerte);
+                    lanzarBannerGlobal("pacoprimew a activado suerte " + obj.suerte + "!");
+                    let sel = document.getElementById('select-suerte-admin');
+                    if (sel) sel.value = obj.suerte;
+                }
+            }
+        }, 300);
+        // PARTE 5 DE 5 (Parte A): LÓGICA DE REBIRTHS, SPAWN Y ALGORITMOS DE PROBABILIDAD
+        function obtenerCostoRebirth() {
+            if (rebirths === 0) return 500;
+            if (rebirths === 1) return 3000;
+            if (rebirths === 2) return 7000;
+            if (rebirths === 3) return 15000;
+            return (rebirths + 1) * 10000; // Escalado continuo para siguientes renacimientos
+        }
+
+        function calcularCostoRebirthUI() {
+            let elemento = document.getElementById('txt-costo-rebirth');
+            if (elemento) elemento.innerText = obtenerCostoRebirth();
+        }
+
+        function ejecutarRebirth() {
+            let coste = obtenerCostoRebirth();
+            if (dinero < coste) {
+                alert("¡No tienes suficiente dinero para hacer Rebirth!");
+                return;
+            }
+
+            dinero = 100; // Reinicia el dinero a 100
+            album = [];   // Vacía el álbum actual
+            rebirths++;   // Suma un nivel de renacimiento
+            maxAlbumDinamico = 20 + (rebirths * 2); // Desbloquea +2 espacios permanentes de álbum
+
+            guardarProgreso();
+            actualizarUI();
+            dibujarAlbum();
+            cerrarRebirthModal();
+            alert("¡Has alcanzado el Renacimiento nivel " + rebirths + "! Tu espacio máximo de álbum ahora es de " + maxAlbumDinamico + " ranuras.");
+        }
+
         function spawnearPokemon() {
             let idIngresado = parseInt(document.getElementById('input-spawn-id').value);
             if (isNaN(idIngresado) || idIngresado < 1 || idIngresado > 150) {
                 alert("Por favor, introduce un ID de Pokémon válido entre 1 y 150.");
                 return;
             }
-            if (album.length >= MAX_ALBUM) {
-                alert("¡Tu Álbum está lleno! Borra una carta para hacer espacio.");
+            if (album.length >= maxAlbumDinamico) {
+                alert("¡Tu Álbum está lleno! Borra una carta o haz Rebirth para hacer espacio.");
                 return;
             }
 
@@ -586,7 +658,11 @@
         }
 
         function obtenerAleatorioPorProbabilidad(lista) {
-            let suerteActual = parseFloat(localStorage.getItem('poke_suerte_global')) || 1;
+            let packSuerte = localStorage.getItem('poke_suerte_pack');
+            let suerteActual = 1;
+            if (packSuerte) {
+                suerteActual = parseFloat(JSON.parse(packSuerte).suerte) || 1;
+            }
 
             let modLista = lista.map(el => {
                 let copia = { ...el };
@@ -677,7 +753,7 @@
         function comprarCarta(index) {
             let carta = mercado[index];
             if (dinero < carta.costo) { alert("¡No tienes suficiente dinero!"); return; }
-            if (album.length >= MAX_ALBUM) { alert("¡Tu Álbum está lleno! Borra una carta para hacer espacio."); return; }
+            if (album.length >= maxAlbumDinamico) { alert("¡Tu Álbum está lleno! Borra una carta o haz Rebirth para hacer espacio."); return; }
 
             dinero -= carta.costo;
             album.push({...carta, albumId: Date.now() + Math.random()}); 
@@ -767,9 +843,13 @@
             let d = document.getElementById('txt-dinero');
             let g = document.getElementById('txt-gps');
             let a = document.getElementById('txt-album-cant');
+            let m = document.getElementById('txt-album-max');
+            let r = document.getElementById('txt-rebirths-cant');
             if (d) d.innerText = Math.floor(dinero);
             if (g) g.innerText = obtenerGPS();
             if (a) a.innerText = album.length;
+            if (m) m.innerText = maxAlbumDinamico;
+            if (r) r.innerText = rebirths;
         }
 
         setInterval(() => {
