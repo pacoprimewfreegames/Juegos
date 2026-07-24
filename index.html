@@ -3,758 +3,732 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geometry Dash HTML - Fix Tienda y Códigos</title>
+    <title>PokeCard Idle Collector</title>
     <style>
         body {
             margin: 0;
-            background: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
+            background: #121214;
+            color: #e1e1e6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            padding: 20px;
         }
-        #menuContainer {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(10, 20, 40, 0.95);
+        h1 { margin: 5px 0; color: #ffcb05; text-shadow: 2px 2px #3b4cca; }
+        
+        /* Contenedor de Login/Registro Inicial */
+        .auth-container {
+            background: #1a1a1e;
+            border: 2px solid #ffcb05;
+            padding: 30px;
+            border-radius: 12px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            margin-top: 50px;
+        }
+        .auth-input {
+            width: 90%;
+            padding: 10px;
+            background: #202024;
+            border: 2px solid #29292e;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        .auth-input:focus { border-color: #ffcb05; outline: none; }
+        .auth-btn {
+            background: #ffcb05;
+            color: #121214;
+            border: none;
             padding: 10px 20px;
-            border-radius: 15px;
-            border: 3px solid #00FFFF;
-            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
-            z-index: 10;
-            max-height: 98vh;
-            overflow-y: auto;
-            width: 370px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 5px;
         }
-        h1 { margin: 0 0 3px 0; text-shadow: 0 0 10px #00ff66; font-size: 20px; }
-        h3 { margin: 5px 0 3px 0; color: #00bfff; font-size: 13px; text-align: center; }
-        .section { display: flex; flex-direction: column; width: 100%; }
-        .level-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 4px;
+        .auth-btn:hover { background: #ffe066; }
+
+        /* Contenedor del Juego Principal (Oculto antes del login) */
+        #juego-principal {
+            display: none;
+            flex-direction: column;
+            align-items: center;
             width: 100%;
         }
-        .menu-btn {
-            background: linear-gradient(to right, #0055ff, #00aaff);
-            color: white; border: none; padding: 6px 10px; margin: 1px 0;
-            font-size: 11px; font-weight: bold; border-radius: 5px;
-            cursor: pointer; width: 100%; text-align: center; transition: transform 0.2s;
+
+        .marcador {
+            font-size: 24px;
+            font-weight: bold;
+            background: #202024;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #ffcb05;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
         }
-        .menu-btn.demon { background: linear-gradient(to right, #660000, #ff0000); }
-        .menu-btn.shop-toggle-btn {
-            background: linear-gradient(to right, #ffd700, #ff8c00);
-            color: #000; font-size: 14px; margin: 10px 0; padding: 10px 20px;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
-        }
-        .menu-btn:hover { transform: scale(1.02); box-shadow: 0 0 6px #fff; }
+        .seccion-titulo { width: 100%; max-width: 900px; margin: 15px 0 5px 0; font-size: 18px; color: #a8a8b3; }
         
-        #shopOverlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.85); display: none;
-            justify-content: center; align-items: center; z-index: 50;
-        }
-        #shopModal {
-            background: rgba(10, 15, 30, 0.98); width: 380px; max-height: 85vh;
-            border: 3px solid #ffd700; border-radius: 15px; padding: 15px 20px;
-            box-shadow: 0 0 35px rgba(255, 215, 0, 0.4); overflow-y: auto;
+        /* Contenedor del Mercado (3 cartas) */
+        .mercado-container {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 900px;
+            height: 250px;
+            justify-content: center;
+            background: #1a1a1e;
+            padding: 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
             position: relative;
         }
-        .close-shop-btn {
-            position: absolute; top: 10px; right: 15px; background: #ff3333;
-            color: white; border: none; font-weight: bold; border-radius: 5px;
-            cursor: pointer; padding: 4px 10px; font-size: 12px;
+        .barra-tiempo {
+            position: absolute;
+            bottom: 0; left: 0; height: 4px;
+            background: #ff4747;
+            width: 100%;
+            transition: width 10s linear;
         }
-        .close-shop-btn:hover { background: white; color: black; }
 
-        #shop, #auraShop, #skillShop, #codeSection { border-top: 2px dashed #ffd700; margin-top: 6px; padding-top: 4px; text-align: center; width: 100%; }
-        .stats { font-size: 15px; font-weight: bold; color: #ffd700; margin-bottom: 2px; }
+        /* Botón de Índice Flotante a la Izquierda (Libro) */
+        .btn-abrir-indice {
+            position: fixed;
+            left: 20px;
+            top: 38%;
+            transform: translateY(-50%);
+            background: #ffcb05;
+            color: #121214;
+            border: 3px solid #3b4cca;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            width: 95px;
+        }
+        .btn-abrir-indice:hover { background: #ffe066; }
+
+        /* Botón de Códigos Flotante */
+        .btn-abrir-codigos {
+            position: fixed;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #2b7a3a;
+            color: white;
+            border: 3px solid #4ade80;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            width: 95px;
+        }
+        .btn-abrir-codigos:hover { background: #3fa255; }
+
+        /* Botón Especial de Admin Exclusivo para Pacoprimew (Corona) */
+        .btn-abrir-admin {
+            position: fixed;
+            left: 20px;
+            top: 62%;
+            transform: translateY(-50%);
+            background: #7c3aed;
+            color: white;
+            border: 3px solid #c084fc;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none; /* Se activa por código si eres Pacoprimew */
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            z-index: 100;
+            width: 95px;
+        }
+        .btn-abrir-admin:hover { background: #6d28d9; }
+
+        /* Banner de Mensajes Globales flotantes en pantalla */
+        .chat-banner {
+            position: fixed;
+            top: 15px;
+            background: rgba(0, 0, 0, 0.85);
+            border: 2px solid #7c3aed;
+            padding: 10px 30px;
+            border-radius: 30px;
+            color: #c084fc;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 500;
+            animation: pulse 1s infinite alternate;
+        }
+/* PARTE 2: VENTANAS MODALES, SILUETAS INTERNAS, CALIDADES Y VARIANTES */
+        .modal-fondo {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        .indice-container {
+            width: 90%;
+            max-width: 900px;
+            background: #1a1a1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            position: relative;
+            border: 2px solid #ffcb05;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        .codigo-container {
+            width: 90%;
+            max-width: 400px;
+            background: #1a1a1e;
+            padding: 25px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            position: relative;
+            border: 2px solid #4ade80;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        /* Caja del modal de administración */
+        .admin-container {
+            width: 90%;
+            max-width: 450px;
+            background: #1a1a1e;
+            padding: 25px;
+            border-radius: 12px;
+            box-sizing: border-box;
+            position: relative;
+            border: 2px solid #7c3aed;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            text-align: center;
+        }
+        .btn-cerrar-indice {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: #ff4747; color: white;
+            border: none; width: 32px; height: 32px;
+            border-radius: 50%; font-size: 18px; font-weight: bold;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-cerrar-indice:hover { background: #cc3333; }
+
+        .indice-pestanas { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; border-bottom: 2px solid #29292e; padding-bottom: 10px; padding-right: 40px; }
+        .pestana-btn { background: #29292e; color: #a8a8b3; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .pestana-btn.activa { background: #ffcb05; color: #121214; }
+        .indice-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .indice-item { background: #202024; border: 1px solid #29292e; border-radius: 6px; padding: 8px; font-size: 12px; text-align: center; color: #7c7c8a; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .indice-item.descubierto { color: #fff; font-weight: bold; border-color: #4ade80; background: linear-gradient(135deg, #1b3d26, #202024); }
+
+        .input-codigo { width: 80%; padding: 10px; background: #202024; border: 2px solid #29292e; border-radius: 6px; color: white; font-size: 16px; margin-top: 15px; text-align: center; }
+        .input-codigo:focus { border-color: #4ade80; outline: none; }
+        .btn-canjear { background: #4ade80; color: #121214; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; font-size: 14px; margin-top: 15px; cursor: pointer; }
+        .btn-canjear:hover { background: #3fa255; }
         
-        .shop-grid, .aura-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;
-            max-height: 105px; overflow-y: auto; padding-right: 3px;
-        }
-        .skin-item, .aura-item {
-            background: #111; border: 2px solid #555; padding: 3px 1px; border-radius: 5px;
-            cursor: pointer; font-size: 8px; text-align: center; display: flex; flex-direction: column; align-items: center;
-        }
-        .skin-item.owned, .aura-item.owned { border-color: #00ff66; }
-        .skin-item.equipped, .aura-item.equipped { background: #0055ff; border-color: #fff; }
-        .skin-canvas { width: 22px; height: 22px; display: block; background: #222; border: 1px solid #fff; }
-        .aura-preview { width: 22px; height: 22px; border-radius: 4px; border: 1px solid #fff; }
-        .skin-status, .aura-status { display: block; font-weight: bold; margin-top: 1px; }
+        /* Select de Suerte Admin */
+        .select-admin { width: 80%; padding: 10px; background: #202024; border: 2px solid #7c3aed; border-radius: 6px; color: white; font-size: 16px; margin-top: 10px; text-align: center; }
 
-        .code-input {
-            width: 70%; padding: 6px; border-radius: 4px; border: 1px solid #ffd700;
-            background: #111; color: #fff; font-size: 12px; text-align: center;
-        }
-        .code-btn {
-            padding: 6px 12px; background: #ffd700; color: #000; border: none;
-            font-weight: bold; border-radius: 4px; cursor: pointer; font-size: 12px; margin-left: 4px;
-        }
-        .skill-box-item {
-            background: #111; border: 2px solid #555; padding: 8px; border-radius: 6px;
-            display: flex; justify-content: space-between; align-items: center; font-size: 12px;
-        }
-        .skill-box-item.owned { border-color: #00ff66; }
+        /* Estructura de las Cartas */
+        .carta { width: 160px; height: 225px; border-radius: 10px; padding: 8px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: space-between; cursor: pointer; position: relative; transition: transform 0.2s, box-shadow 0.2s; user-select: none; border: 3px solid #333; }
+        .carta:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(255,255,255,0.2); }
+        .carta .id { font-size: 11px; opacity: 0.7; }
+        .carta .nombre { font-weight: bold; font-size: 14px; margin: 2px 0; text-align: center;}
+        .carta .calidad { font-size: 10px; text-transform: uppercase; font-weight: bold; text-align: center; background: rgba(0,0,0,0.3); padding: 2px; border-radius: 4px;}
+        .carta .variante { font-size: 11px; font-weight: bold; text-align: center; color: #fff; text-shadow: 1px 1px 2px #000; }
+        .carta .info { font-size: 11px; background: rgba(0,0,0,0.5); padding: 4px; border-radius: 4px; }
+        
+        /* Caja de la Ilustración / Silueta interna si no carga */
+        .carta-img-box { width: 100%; height: 70px; background: rgba(0, 0, 0, 0.35); border-radius: 6px; display: flex; align-items: center; justify-content: center; margin: 3px 0; overflow: hidden; position: relative; }
+        .carta-img { height: 100%; object-fit: contain; z-index: 2; position: relative; }
+        
+        /* Silueta geométrica auto-generada */
+        .silueta-backup { width: 45px; height: 45px; background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: rgba(255,255,255,0.5); z-index: 1; position: absolute; }
 
-        #ingameControls {
-            position: absolute; top: 20px; right: calc(50% - 380px); display: none; gap: 8px; z-index: 20;
-        }
-        .control-btn {
-            background: rgba(20, 20, 30, 0.85); color: #fff; border: 2px solid #00FFFF;
-            padding: 6px 12px; font-size: 12px; font-weight: bold; border-radius: 6px;
-            cursor: pointer; transition: background 0.2s, box-shadow 0.2s;
-        }
-        .control-btn.exit-btn { border-color: #ff3333; }
-        .control-btn:hover { background: #fff; color: #000; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        /* Colores de Calidades (8 niveles) */
+        .q1 { background: linear-gradient(135deg, #7a7a7a, #a8a8a8); color: white; } 
+        .q2 { background: linear-gradient(135deg, #2b7a3a, #4ade80); color: white; } 
+        .q3 { background: linear-gradient(135deg, #1d4ed8, #60a5fa); color: white; } 
+        .q4 { background: linear-gradient(135deg, #6b21a8, #c084fc); color: white; } 
+        .q5 { background: linear-gradient(135deg, #b45309, #fbbf24); color: black; border-color: #fbbf24; } 
+        .q6 { background: linear-gradient(135deg, #be123c, #fb7185); color: white; border-color: #fb7185; } 
+        .q7 { background: linear-gradient(135deg, #0369a1, #38bdf8); color: white; border-color: #38bdf8; } 
+        .q8 { background: linear-gradient(135deg, #0f172a, #334155); color: #f8fafc; border-color: #ffff00; box-shadow: 0 0 10px #ffff00; } 
 
-        canvas#gameCanvas { display: none; border: 4px solid #333; background: linear-gradient(to bottom, #000022, #002244); }
-        #info { margin-top: 8px; font-size: 15px; display: none; }
-        .highlight { color: #00FFFF; font-weight: bold; }
+        /* Efectos de Variantes */
+        .v-oro { border-color: #ffd700 !important; box-shadow: inset 0 0 15px rgba(255,215,0,0.6); }
+        .v-diamante { border-color: #00ffff !important; box-shadow: inset 0 0 15px rgba(0,255,255,0.6); }
+        .v-v { border-color: #ff0055 !important; }
+        .v-gx { border-color: #00ff66 !important; font-style: italic; }
+        .v-vmax { border-color: #ff00ff !important; animation: pulse 1.5s infinite; }
+        .v-tera { border-color: #ffffff !important; background-image: linear-gradient(45deg, #ff007f, #7f00ff, #00ffff, #ff007f) !important; background-size: 300% 300% !important; animation: rainbow 4s linear infinite; }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+        @keyframes rainbow { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+
+        /* Álbum de cartas (Máximo 20) */
+        .album-container { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; max-width: 900px; background: #1a1a1e; padding: 15px; border-radius: 12px; min-height: 150px; box-sizing: border-box; }
+        .btn-borrar { background: #ff4747; color: white; border: none; padding: 4px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 11px; margin-top: 3px; width: 100%; }
+        .btn-borrar:hover { background: #cc3333; }
     </style>
 </head>
 <body>
-<div id="ingameControls">
-        <button class="control-btn" onclick="exitToMenu()">Menú Principal</button>
-        <button class="control-btn exit-btn" onclick="resetGame()">Reiniciar</button>
+    <!-- PARTE 3: PANTALLAS DE INTERFAZ, PANEL DE MENSAJES Y DECLARACIÓN DE CONFIGURACIONES -->
+    
+    <!-- Banner superior flotante para anuncios globales del Admin -->
+    <div id="banner-global" class="chat-banner"></div>
+
+    <!-- Caja inicial de Login/Registro -->
+    <div id="pantalla-auth" class="auth-container">
+        <h2 style="color: #ffcb05; margin-top: 0;">Entrenador Pokémon</h2>
+        <p style="font-size: 14px; color: #a8a8b3;">Inicia sesión o regístrate para guardar tu progreso</p>
+        <input type="text" id="auth-usuario" class="auth-input" placeholder="Nombre de usuario..." autocomplete="off">
+        <input type="password" id="auth-pass" class="auth-input" placeholder="Contraseña...">
+        <br>
+        <button class="auth-btn" onclick="iniciarSesion()">Entrar</button>
+        <button class="auth-btn" style="background: #2b7a3a; color: white;" onclick="registrarUsuario()">Registrarse</button>
     </div>
 
-    <!-- CONTENEDOR DEL MENÚ PRINCIPAL -->
-    <div id="menuContainer">
-        <h1>GEOMETRY DASH HTML</h1>
-        <div class="stats">🪙 Monedas: <span id="coinCount">0</span></div>
+    <!-- Bloque Principal del Juego (Oculto hasta autenticarse) -->
+    <div id="juego-principal">
         
-        <button class="menu-btn shop-toggle-btn" onclick="toggleShop(true)">🏪 ABRIR TIENDA</button>
+        <!-- Botón flotante del libro (Índice) -->
+        <button class="btn-abrir-indice" onclick="abrirIndice()">
+            <span>📖</span>
+            <span>ÍNDICE</span>
+        </button>
 
-        <div class="section">
-            <h3>NIVELES FÁCILES (20 🪙)</h3>
-            <div class="level-grid">
-                <button class="menu-btn" onclick="startGame(1, false)">Stereo Madness</button>
-                <button class="menu-btn" onclick="startGame(2, false)">Back On Track</button>
-                <button class="menu-btn" onclick="startGame(3, false)">Polargeist</button>
-                <button class="menu-btn" onclick="startGame(4, false)">Dry Out</button>
-                <button class="menu-btn" onclick="startGame(5, false)">Base After Base</button>
-                <button class="menu-btn" onclick="startGame(6, false)">Cant Let Go</button>
+        <!-- Botón flotante de códigos (CÓDIGOS) -->
+        <button class="btn-abrir-codigos" onclick="abrirCodigos()">
+            <span>🔑</span>
+            <span>CÓDIGOS</span>
+        </button>
+
+        <!-- Botón flotante de Admin Exclusivo para Pacoprimew (Corona) -->
+        <button id="btn-admin-corona" class="btn-abrir-admin" onclick="abrirAdmin()">
+            <span>👑</span>
+            <span>ADMIN</span>
+        </button>
+
+        <!-- Ventana emergente del Índice -->
+        <div class="modal-fondo" id="modal-indice">
+            <div class="indice-container">
+                <button class="btn-cerrar-indice" onclick="cerrarIndice()">X</button>
+                <div class="seccion-titulo" style="margin-top: 0; color: #ffcb05;">Índice de Cartas Descubiertas (Historial Permanente)</div>
+                <div class="indice-pestanas" id="indice-pestanas"></div>
+                <div class="indice-grid" id="indice-grid"></div>
             </div>
         </div>
 
-        <div class="section">
-            <h3 style="color: #ff3333;">NIVELES DEMON (40 🪙)</h3>
-            <div class="level-grid">
-                <button class="menu-btn demon" onclick="startGame(1, true)">Madness [D]</button>
-                <button class="menu-btn demon" onclick="startGame(2, true)">Track [D]</button>
-                <button class="menu-btn demon" onclick="startGame(3, true)">Polargeist [D]</button>
-                <button class="menu-btn demon" onclick="startGame(4, true)">Dry Out [D]</button>
-                <button class="menu-btn demon" onclick="startGame(5, true)">Base [D]</button>
-                <button class="menu-btn demon" onclick="startGame(6, true)">Cant Let Go [D]</button>
+        <!-- Ventana emergente para Canjear Códigos -->
+        <div class="modal-fondo" id="modal-codigos">
+            <div class="codigo-container">
+                <button class="btn-cerrar-indice" onclick="cerrarCodigos()">X</button>
+                <div class="seccion-titulo" style="margin-top: 0; color: #4ade80; text-align: center;">Canjear Códigos Secretos</div>
+                <input type="text" id="input-codigo-promo" class="input-codigo" placeholder="Escribe el código aquí...">
+                <br>
+                <button class="btn-canjear" onclick="validarCodigo()">Canjear Código</button>
             </div>
         </div>
+
+        <!-- Ventana emergente de Administración (Solo Pacoprimew) -->
+        <div class="modal-fondo" id="modal-admin">
+            <div class="admin-container">
+                <button class="btn-cerrar-indice" onclick="cerrarAdmin()">X</button>
+                <div class="seccion-titulo" style="margin-top: 0; color: #c084fc; text-align: center;">Panel Divino de Administración</div>
+                
+                <p style="font-size: 14px; margin-bottom: 5px; color: #a8a8b3;">Multiplicador de Suerte Activo:</p>
+                <select id="select-suerte-admin" class="select-admin" onchange="cambiarSuerteAdmin()">
+                    <option value="1">Suerte Normal (1x)</option>
+                    <option value="2">Suerte Mejorada (2x)</option>
+                    <option value="4">Suerte Elevada (4x)</option>
+                    <option value="8">Suerte Masiva (8x)</option>
+                    <option value="16">Suerte Divina (16x)</option>
+                </select>
+
+                <p style="font-size: 14px; margin-top: 15px; margin-bottom: 5px; color: #a8a8b3;">Enviar Anuncio Global a la pantalla:</p>
+                <input type="text" id="input-anuncio-admin" class="input-codigo" style="border-color: #7c3aed;" placeholder="Escribe algo y pulsa Enter..." onkeydown="enviarAnuncioTeclado(event)">
+            </div>
+        </div>
+
+        <h1 id="saludo-entrenador">PokeCard Idle Collector</h1>
+        
+        <div class="marcador">
+            <div>Dinero: <span id="txt-dinero" style="color: #4ade80;">100</span> $</div>
+            <div>Generación: <span id="txt-gps" style="color: #60a5fa;">0</span> $/s</div>
+            <div>Álbum: <span id="txt-album-cant">0</span>/20</div>
+        </div>
+
+        <div class="seccion-titulo">Mercado en movimiento (Haz clic para comprar la carta)</div>
+        <div class="mercado-container" id="mercado">
+            <div class="barra-tiempo" id="barra"></div>
+        </div>
+
+        <div class="seccion-titulo">Tu Álbum de Cartas (Máximo 20)</div>
+        <div class="album-container" id="album"></div>
     </div>
-
-    <!-- VENTANA EMERGENTE POP-UP: TIENDA COMPLETA -->
-    <div id="shopOverlay">
-        <div id="shopModal">
-            <button class="close-shop-btn" onclick="toggleShop(false)">X</button>
-            <h2 style="text-align:center; color:#ffd700; margin:0 0 10px 0;">🏪 MEGATIENDA</h2>
-            
-            <!-- MOSTRADOR DE 11 SKINS -->
-            <div id="shop">
-                <h3>TIENDA DE SKINS (11 MODELOS)</h3>
-                <div class="shop-grid">
-                    <div class="skin-item equipped" id="skin0" onclick="clickSkin(0, 0)"><canvas class="skin-canvas" id="preview0" width="30" height="30"></canvas><span class="skin-status" id="status0">Equipado</span></div>
-                    <div class="skin-item" id="skin1" onclick="clickSkin(1, 15)"><canvas class="skin-canvas" id="preview1" width="30" height="30"></canvas><span class="skin-status" id="status1">15 🪙</span></div>
-                    <div class="skin-item" id="skin2" onclick="clickSkin(2, 30)"><canvas class="skin-canvas" id="preview2" width="30" height="30"></canvas><span class="skin-status" id="status2">30 🪙</span></div>
-                    <div class="skin-item" id="skin3" onclick="clickSkin(3, 45)"><canvas class="skin-canvas" id="preview3" width="30" height="30"></canvas><span class="skin-status" id="status3">45 🪙</span></div>
-                    <div class="skin-item" id="skin4" onclick="clickSkin(4, 60)"><canvas class="skin-canvas" id="preview4" width="30" height="30"></canvas><span class="skin-status" id="status4">60 🪙</span></div>
-                    <div class="skin-item" id="skin5" onclick="clickSkin(5, 75)"><canvas class="skin-canvas" id="preview5" width="30" height="30"></canvas><span class="skin-status" id="status5">75 🪙</span></div>
-                    <div class="skin-item" id="skin6" onclick="clickSkin(6, 90)"><canvas class="skin-canvas" id="preview6" width="30" height="30"></canvas><span class="skin-status" id="status6">90 🪙</span></div>
-                    <div class="skin-item" id="skin7" onclick="clickSkin(7, 105)"><canvas class="skin-canvas" id="preview7" width="30" height="30"></canvas><span class="skin-status" id="status7">105 🪙</span></div>
-                    <div class="skin-item" id="skin8" onclick="clickSkin(8, 120)"><canvas class="skin-canvas" id="preview8" width="30" height="30"></canvas><span class="skin-status" id="status8">120 🪙</span></div>
-                    <div class="skin-item" id="skin9" onclick="clickSkin(9, 135)"><canvas class="skin-canvas" id="preview9" width="30" height="30"></canvas><span class="skin-status" id="status9">135 🪙</span></div>
-                    <div class="skin-item" id="skin10" onclick="clickSkin(10, 160)"><canvas class="skin-canvas" id="preview10" width="30" height="30"></canvas><span class="skin-status" id="status10">160 🪙</span></div>
-                </div>
-            </div>
-
-            <!-- MOSTRADOR DE 12 AURAS -->
-            <div id="auraShop">
-                <h3>TIENDA DE AURAS (12 MODELOS)</h3>
-                <div class="aura-grid">
-                    <div class="aura-item equipped" id="aura0" onclick="clickAura(0, 0)"><div class="aura-preview" style="background:#555;"></div><span class="aura-status" id="astatus0">Equipado</span></div>
-                    <div class="aura-item" id="aura1" onclick="clickAura(1, 20)"><div class="aura-preview" style="background:#ff4500;"></div><span class="aura-status" id="astatus1">20 🪙</span></div>
-                    <div class="aura-item" id="aura2" onclick="clickAura(2, 35)"><div class="aura-preview" style="background:#00ffff;"></div><span class="aura-status" id="astatus2">35 🪙</span></div>
-                    <div class="aura-item" id="aura3" onclick="clickAura(3, 50)"><div class="aura-preview" style="background:#ffff00;"></div><span class="aura-status" id="astatus3">50 🪙</span></div>
-                    <div class="aura-item" id="aura4" onclick="clickAura(4, 65)"><div class="aura-preview" style="background:#ff0055;"></div><span class="aura-status" id="astatus4">65 🪙</span></div>
-                    <div class="aura-item" id="aura5" onclick="clickAura(5, 80)"><div class="aura-preview" style="background:#9400d3;"></div><span class="aura-status" id="astatus5">80 🪙</span></div>
-                    <div class="aura-item" id="aura6" onclick="clickAura(6, 95)"><div class="aura-preview" style="background:#00ff66;"></div><span class="aura-status" id="astatus6">95 🪙</span></div>
-                    <div class="aura-item" id="aura7" onclick="clickAura(7, 110)"><div class="aura-preview" style="background:#ffd700;"></div><span class="aura-status" id="astatus7">110 🪙</span></div>
-                    <div class="aura-item" id="aura8" onclick="clickAura(8, 125)"><div class="aura-preview" style="background:#ff00ff;"></div><span class="aura-status" id="astatus8">125 🪙</span></div>
-                    <div class="aura-item" id="aura9" onclick="clickAura(9, 140)"><div class="aura-preview" style="background:#ffffff;"></div><span class="aura-status" id="astatus9">140 🪙</span></div>
-                    <div class="aura-item" id="aura10" onclick="clickAura(10, 155)"><div class="aura-preview" style="background:#ff66aa;"></div><span class="aura-status" id="astatus10">155 🪙</span></div>
-                    <div class="aura-item" id="aura11" onclick="clickAura(11, 180)"><div class="aura-preview" style="background:#76ff03;"></div><span class="aura-status" id="astatus11">180 🪙</span></div>
-                </div>
-            </div>
-
-            <!-- TIENDA DE HABILIDADES -->
-            <div id="skillShop">
-                <h3>HABILIDADES ESPECIALES</h3>
-                <div class="skill-box-item" id="doubleJumpItem">
-                    <span>👟 Doble Salto</span>
-                    <button class="code-btn" style="margin:0;" onclick="buyDoubleJump()">300 🪙</button>
-                </div>
-            </div>
-
-            <!-- SECCIÓN DE CANJEAR CÓDIGOS -->
-            <div id="codeSection">
-                <h3>🔑 CANJEAR CÓDIGOS</h3>
-                <div style="display:flex; justify-content:center; align-items:center;">
-                    <input type="text" id="codeInputField" class="code-input" placeholder="Escribe tu código aquí...">
-                    <button class="code-btn" onclick="redeemCode()">Canjear</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
-    <div id="info">Nivel: <span id="levelName" class="highlight">-</span> | Intento: <span id="attempts" class="highlight">1</span></div>
 
     <script>
-const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const attemptsEl = document.getElementById("attempts");
-        const levelNameEl = document.getElementById("levelName");
-        const menuContainer = document.getElementById("menuContainer");
-        const coinCountEl = document.getElementById("coinCount");
+        // Variables globales
+        let usuarioActivo = "";
+        let dinero = 100;
+        let mercado = [];
+        let album = [];
+        const MAX_ALBUM = 20;
 
-        // --- SISTEMAS DE TIENDA Y MONEDAS ---
-        let coins = 0;
-        let ownedSkins = [true, false, false, false, false, false, false, false, false, false, false]; 
-        let equippedSkin = 0;
-        let ownedAuras = [true, false, false, false, false, false, false, false, false, false, false, false]; 
-        let equippedAura = 0;
-        let particles = []; 
+        // Modificadores de Suerte Especiales administrados por Pacoprimew
+        let suerteAdminFactor = 1;
 
-        // Variables de Habilidades y Admin
-        let hasDoubleJump = false;
-        let jumpCount = 0; 
-        let isAdminPikachu = false;
+        let cartasDescubiertas = {
+            "Normal": {}, "Oro": {}, "Diamante": {}, "V": {}, "GX": {}, "Vmax": {}, "Teracristal": {}
+        };
+        let varianteActivaIndice = "Normal";
+        let codigosUsados = {};
 
-        // --- CONFIGURACIÓN MOTOR ---
-        const gravity = 0.95;       
-        let gameSpeed = 6.2;      
-        const GRID_SIZE = 30;  
-        const floorY = canvas.height - 80;
+        // Configuración de las 8 Calidades (Común vale 50$ y genera 2$/s)
+        const CALIDADES = [
+            { nivel: 1, nombre: "Común", prob: 50, costBase: 50, gpsBase: 2, clase: "q1" },
+            { nivel: 2, nombre: "Poco Común", prob: 25, costBase: 250, gpsBase: 6, clase: "q2" },
+            { nivel: 3, nombre: "Rara", prob: 12, costBase: 600, gpsBase: 16, clase: "q3" },
+            { nivel: 4, nombre: "Épica", prob: 6, costBase: 1500, gpsBase: 45, clase: "q4" },
+            { nivel: 5, nombre: "Legendaria", prob: 4, costBase: 4000, gpsBase: 130, clase: "q5" },
+            { nivel: 6, nombre: "Mítica", prob: 2, costBase: 10000, gpsBase: 350, clase: "q6" },
+            { nivel: 7, nombre: "Singular", prob: 0.8, costBase: 30000, gpsBase: 1200, clase: "q7" },
+            { nivel: 8, nombre: "Ancestral", prob: 0.2, costBase: 100000, gpsBase: 5000, clase: "q8" }
+        ];
+
+        // Configuración de Variantes (Multiplicadores de valor)
+        const VARIANTES = [
+            { nombre: "Normal", mult: 1, prob: 60, clase: "" },
+            { nombre: "Oro", mult: 3, prob: 15, clase: "v-oro" },
+            { nombre: "Diamante", mult: 5, prob: 10, clase: "v-diamante" },
+            { nombre: "V", mult: 7, prob: 7, clase: "v-v" },
+            { nombre: "GX", mult: 9, prob: 5, clase: "v-gx" },
+            { nombre: "Vmax", mult: 12, prob: 2, clase: "v-vmax" },
+            { nombre: "Teracristal", mult: 15, prob: 1, clase: "v-tera" }
+        ];
+
+        // Nombres base de las cartas
+        const POKE_NAMES = ["Bulbasaur", "Ivysaur", "Venusaur", "Charmander", "Charmeleon", "Charizard", "Squirtle", "Wartortle", "Blastoise", "Caterpie", "Metapod", "Butterfree", "Weedle", "Kakuna", "Beedrill", "Pidgey", "Pidgeotto", "Pidgeot", "Rattata", "Raticate", "Pikachu", "Raichu", "Nidoran", "Clefairy", "Vulpix", "Ninetales", "Jigglypuff", "Zubat", "Oddish", "Gloom", "Diglett", "Meowth", "Psyduck", "Growlithe", "Arcanine", "Poliwag", "Abra", "Kadabra", "Alakazam", "Machop", "Bellsprout", "Tentacool", "Geodude", "Graveler", "Golem", "Ponyta", "Slowpoke", "Magnemite", "Gastly", "Haunter", "Gengar", "Onix", "Eevee", "Snorlax", "Articuno", "Zapdos", "Moltres", "Dratini", "Dragonite", "Mewtwo", "Mew"];
+// PARTE 4 (Mesa 1): SISTEMA DE CUENTAS, CONTROL DE INICIO DE SESIÓN Y REGISTRO
+        function registrarUsuario() {
+            let user = document.getElementById('auth-usuario').value.trim();
+            let pass = document.getElementById('auth-pass').value;
+
+            if (user === "" || pass === "") {
+                alert("Por favor, rellena todos los campos.");
+                return;
+            }
+
+            let cuentas = JSON.parse(localStorage.getItem('poke_cuentas')) || {};
+            if (cuentas[user]) {
+                alert("¡Este nombre de usuario ya existe! Elige otro irrepetible.");
+                return;
+            }
+
+            cuentas[user] = {
+                password: pass,
+                dinero: 100,
+                album: [],
+                cartasDescubiertas: { "Normal": {}, "Oro": {}, "Diamante": {}, "V": {}, "GX": {}, "Vmax": {}, "Teracristal": {} },
+                codigosUsados: {}
+            };
+
+            localStorage.setItem('poke_cuentas', JSON.stringify(cuentas));
+            alert("¡Usuario registrado con éxito! Ya puedes iniciar sesión.");
+        }
+
+        function iniciarSesion() {
+            let user = document.getElementById('auth-usuario').value.trim();
+            let pass = document.getElementById('auth-pass').value;
+
+            let cuentas = JSON.parse(localStorage.getItem('poke_cuentas')) || {};
+
+            if (!cuentas[user] || cuentas[user].password !== pass) {
+                alert("Usuario o contraseña incorrectos.");
+                return;
+            }
+
+            usuarioActivo = user;
+            dinero = cuentas[user].dinero;
+            album = cuentas[user].album || [];
+            cartasDescubiertas = cuentas[user].cartasDescubiertas || cartasDescubiertas;
+            codigosUsados = cuentas[user].codigosUsados || {};
+
+            document.getElementById('pantalla-auth').style.display = 'none';
+            document.getElementById('juego-principal').style.display = 'flex';
+            document.getElementById('saludo-entrenador').innerText = "Álbum de " + usuarioActivo;
+
+            // ACTIVACIÓN EXCLUSIVA ADMIN PARA PACOPRIMEW (Añade corona y controles)
+            if (usuarioActivo === "Pacoprimew") {
+                document.getElementById('btn-admin-corona').style.display = 'flex';
+                alert("¡Bienvenido, Creador Pacoprimew! Panel de Administración Activo.");
+            }
+
+            iniciarMercado();
+            reiniciarBarraTiempo();
+            actualizarUI();
+            dibujarAlbum();
+        }
+
+        function guardarProgreso() {
+            if (usuarioActivo === "") return;
+            let cuentas = JSON.parse(localStorage.getItem('poke_cuentas')) || {};
+            if (cuentas[usuarioActivo]) {
+                cuentas[usuarioActivo].dinero = dinero;
+                cuentas[usuarioActivo].album = album;
+                cuentas[usuarioActivo].cartasDescubiertas = cartasDescubiertas;
+                cuentas[usuarioActivo].codigosUsados = codigosUsados;
+                localStorage.setItem('poke_cuentas', JSON.stringify(cuentas));
+            }
+        }
+
+        function abrirIndice() { document.getElementById('modal-indice').style.display = 'flex'; dibujarPestanasIndice(); dibujarIndice(); }
+        function cerrarIndice() { document.getElementById('modal-indice').style.display = 'none'; }
+        function abrirCodigos() { document.getElementById('input-codigo-promo').value = ""; document.getElementById('modal-codigos').style.display = 'flex'; }
+        function cerrarCodigos() { document.getElementById('modal-codigos').style.display = 'none'; }
         
-        let attempts = 1;
-        let cameraX = 0;
-        let currentLevelId = 1;
-        let isDemonMode = false;
-        let isPlaying = false;
+        // Controladores del Menú Admin
+        function abrirAdmin() { document.getElementById('input-anuncio-admin').value = ""; document.getElementById('modal-admin').style.display = 'flex'; }
+        function cerrarAdmin() { document.getElementById('modal-admin').style.display = 'none'; }
 
-        // --- JUGADOR ---
-        const player = {
-            x: 150, y: floorY - GRID_SIZE, size: GRID_SIZE,
-            ySpeed: 0, jumpForce: -14.5, isGrounded: false, rotation: 0
-        };
-
-        // --- CONTROL DE LA TIENDA MODAL ---
-        function toggleShop(open) {
-            document.getElementById("shopOverlay").style.display = open ? "flex" : "none";
-            if (open) setTimeout(drawAllPreviews, 50);
+        function cambiarSuerteAdmin() {
+            suerteAdminFactor = parseFloat(document.getElementById('select-suerte-admin').value);
+            alert("Suerte del servidor alterada con éxito a: " + suerteAdminFactor + "x");
         }
 
-        // --- BANCO COMPLETO DE MAPAS (12 NIVELES CONSERVADOS) ---
-        const levelsData = {
-            easy: {
-                1: [
-                    { gridX: 25, type: 's' }, { gridX: 38, type: 's' }, { gridX: 50, type: 's' },
-                    { gridX: 62, type: 'b', height: 1 }, { gridX: 63, type: 'b', height: 1 },
-                    { gridX: 75, type: 'b', height: 1 }, { gridX: 76, type: 'b', height: 2 },
-                    { gridX: 77, type: 's', height: 2 }, { gridX: 90, type: 'ss' },
-                    { gridX: 105, type: 'b', height: 1 }, { gridX: 118, type: 'sss' }
-                ],
-                2: [
-                    { gridX: 25, type: 'b', height: 1 }, { gridX: 40, type: 's' }, { gridX: 52, type: 'ss' },
-                    { gridX: 65, type: 'b', height: 1 }, { gridX: 66, type: 'b', height: 2 },
-                    { gridX: 80, type: 's' }, { gridX: 92, type: 'b', height: 1 },
-                    { gridX: 94, type: 's', height: 1 }, { gridX: 108, type: 'ss' }
-                ],
-                3: [
-                    { gridX: 25, type: 's' }, { gridX: 38, type: 'b', height: 1 }, { gridX: 40, type: 'b', height: 2 },
-                    { gridX: 55, type: 'sss' }, { gridX: 70, type: 'b', height: 1 }, { gridX: 72, type: 's' },
-                    { gridX: 85, type: 'b', height: 2 }, { gridX: 98, type: 'ss' }, { gridX: 112, type: 'sss' }
-                ],
-                4: [
-                    { gridX: 20, type: 's' }, { gridX: 32, type: 'b', height: 1 }, { gridX: 35, type: 's' },
-                    { gridX: 48, type: 'ss' }, { gridX: 60, type: 'b', height: 2 }, { gridX: 62, type: 'b', height: 1 },
-                    { gridX: 75, type: 's' }, { gridX: 88, type: 'b', height: 2 }, { gridX: 90, type: 's', height: 2 },
-                    { gridX: 102, type: 'sss' }, { gridX: 115, type: 'b', height: 1 }
-                ],
-                5: [
-                    { gridX: 22, type: 'b', height: 1 }, { gridX: 24, type: 'b', height: 1 }, { gridX: 36, type: 'ss' },
-                    { gridX: 48, type: 's' }, { gridX: 60, type: 'b', height: 1 }, { gridX: 62, type: 'b', height: 2 },
-                    { gridX: 74, type: 'sss' }, { gridX: 88, type: 'b', height: 3 }, { gridX: 100, type: 'ss' },
-                    { gridX: 112, type: 'b', height: 1 }, { gridX: 125, type: 'sss' }
-                ],
-                6: [
-                    { gridX: 20, type: 's' }, { gridX: 30, type: 'ss' }, { gridX: 42, type: 'b', height: 1 },
-                    { gridX: 44, type: 'b', height: 2 }, { gridX: 46, type: 'b', height: 3 }, { gridX: 58, type: 's' },
-                    { gridX: 70, type: 'sss' }, { gridX: 82, type: 'b', height: 2 }, { gridX: 84, type: 's', height: 2 },
-                    { gridX: 96, type: 'ss' }, { gridX: 110, type: 'b', height: 1 }, { gridX: 122, type: 'sss' }
-                ]
-            },
-            demon: {
-                1: [
-                    { gridX: 20, type: 'sss' }, { gridX: 32, type: 'ss' }, { gridX: 42, type: 'b', height: 1 },
-                    { gridX: 43, type: 's', height: 1 }, { gridX: 52, type: 'sss' }, { gridX: 62, type: 'b', height: 1 },
-                    { gridX: 63, type: 'b', height: 2 }, { gridX: 64, type: 'b', height: 3 },
-                    { gridX: 65, type: 's', height: 3 }, { gridX: 75, type: 'sss' }, { gridX: 88, type: 'b', height: 2 },
-                    { gridX: 96, type: 'ss' }, { gridX: 106, type: 'sss' }
-                ],
-                2: [
-                    { gridX: 22, type: 'ss' }, { gridX: 30, type: 'b', height: 1 }, { gridX: 32, type: 'sss' },
-                    { gridX: 44, type: 'b', height: 2 }, { gridX: 45, type: 's', height: 2 }, { gridX: 54, type: 'sss' },
-                    { gridX: 64, type: 'b', height: 1 }, { gridX: 66, type: 'b', height: 3 },
-                    { gridX: 76, type: 'ss' }, { gridX: 84, type: 'sss' }, { gridX: 96, type: 'b', height: 2 },
-                    { gridX: 104, type: 'sss' }
-                ],
-                3: [
-                    { gridX: 20, type: 'sss' }, { gridX: 30, type: 'b', height: 1 }, { gridX: 31, type: 'b', height: 2 },
-                    { gridX: 32, type: 's', height: 2 }, { gridX: 42, type: 'sss' }, { gridX: 52, type: 'b', height: 3 },
-                    { gridX: 53, type: 's', height: 3 }, { gridX: 62, type: 'sss' }, { gridX: 72, type: 'sss' },
-                    { gridX: 82, type: 'b', height: 1 }, { gridX: 84, type: 'ss' }, { gridX: 96, type: 'sss' }
-                ],
-                4: [
-                    { gridX: 18, type: 'sss' }, { gridX: 28, type: 'b', height: 2 }, { gridX: 30, type: 'sss' },
-                    { gridX: 42, type: 'ss' }, { gridX: 52, type: 'b', height: 3 }, { gridX: 53, type: 's', height: 3 },
-                    { gridX: 65, type: 'sss' }, { gridX: 75, type: 'b', height: 1 }, { gridX: 77, type: 'sss' },
-                    { gridX: 90, type: 'ss' }, { gridX: 102, type: 'b', height: 2 }, { gridX: 110, type: 'sss' }
-                ],
-                5: [
-                    { gridX: 18, type: 'ss' }, { gridX: 26, type: 'sss' }, { gridX: 38, type: 'b', height: 2 },
-                    { gridX: 39, type: 's', height: 2 }, { gridX: 50, type: 'sss' }, { gridX: 60, type: 'b', height: 3 },
-                    { gridX: 72, type: 'sss' }, { gridX: 84, type: 'ss' }, { gridX: 94, type: 'b', height: 1 },
-                    { gridX: 96, type: 'sss' }, { gridX: 108, type: 'b', height: 3 }, { gridX: 116, type: 'sss' }
-                ],
-                6: [
-                    { gridX: 18, type: 'sss' }, { gridX: 28, type: 'sss' }, { gridX: 40, type: 'b', height: 3 },
-                    { gridX: 41, type: 's', height: 3 }, { gridX: 52, type: 'ss' }, { gridX: 64, type: 'sss' },
-                    { gridX: 74, type: 'b', height: 2 }, { gridX: 76, type: 'sss' }, { gridX: 88, type: 'b', height: 1 },
-                    { gridX: 90, type: 'ss' }, { gridX: 102, type: 'sss' }, { gridX: 114, type: 'b', height: 3 }, { gridX: 122, type: 'sss' }
-                ]
-            }
-        };
-let obstacles = [];
+        function enviarAnuncioTeclado(e) {
+            if (e.key === 'Enter') {
+                let msg = document.getElementById('input-anuncio-admin').value.trim();
+                if (msg === "") return;
+                
+                let banner = document.getElementById('banner-global');
+                banner.innerText = "Pacoprimew: " + msg;
+                banner.style.display = 'block';
 
-        function buildLevel() {
-            const levelList = isDemonMode ? levelsData.demon[currentLevelId] : levelsData.easy[currentLevelId];
-            obstacles = levelList.map(obs => {
-                let realX = obs.gridX * GRID_SIZE + 500; 
-                let baseHeight = obs.height ? obs.height * GRID_SIZE : 0;
-                return {
-                    x: realX, type: obs.type, baseHeight: baseHeight,
-                    width: obs.type === 'ss' ? 60 : (obs.type === 'sss' ? 90 : 30), height: 30
-                };
+                cerrarAdmin();
+
+                // Ocultar el banner automáticamente a los 5 segundos
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 5000);
+            }
+        }
+// PARTE 4 (Mesa 2): CANJEO DE CÓDIGOS, GENERACIÓN DE CARTAS Y RENDERIZADO VISUAL
+        function validarCodigo() {
+            let codigoIngresado = document.getElementById('input-codigo-promo').value.trim();
+            if (codigoIngresado === "200money") {
+                if (codigosUsados["200money"]) { alert("¡Este código ya ha sido canjeado!"); return; }
+                dinero += 200;
+                codigosUsados["200money"] = true;
+                guardarProgreso(); actualizarUI(); cerrarCodigos();
+                alert("¡Código canjeado! Recibes +200 monedas.");
+            } else { alert("Código inválido. Inténtalo de nuevo."); }
+        }
+
+        function obtenerAleatorioPorProbabilidad(lista) {
+            let modLista = lista.map(el => {
+                if (suerteAdminFactor > 1) {
+                    if (el.nivel === 1) return { ...el, prob: Math.max(1, el.prob / suerteAdminFactor) };
+                    return { ...el, prob: el.prob * suerteAdminFactor };
+                }
+                return el;
+            });
+
+            let totalProb = modLista.reduce((sum, el) => sum + el.prob, 0);
+            let r = Math.random() * totalProb;
+            let acumulado = 0;
+            for (let el of modLista) {
+                acumulado += el.prob;
+                if (r <= acumulado) return lista.find(orig => orig.nivel === el.nivel);
+            }
+            return lista;
+        }
+
+        function crearCartaAleatoria() {
+            let idUnico = Math.floor(Math.random() * 150) + 1;
+            let nombreBase = POKE_NAMES[idUnico % POKE_NAMES.length];
+            let cal = obtenerAleatorioPorProbabilidad(CALIDADES);
+            let varElegida = obtenerAleatorioPorProbabilidad(VARIANTES);
+
+            let costoFinal = cal.costBase * varElegida.mult;
+            let gpsFinal = cal.gpsBase * varElegida.mult;
+
+            return {
+                id: idUnico, nombre: nombreBase,
+                calidadNombre: cal.nombre, calidadClase: cal.clase,
+                varianteNombre: varElegida.nombre, varianteClase: varElegida.clase,
+                costo: costoFinal, gps: gpsFinal
+            };
+        }
+
+        function iniciarMercado() { mercado = []; for (let i = 0; i < 3; i++) { mercado.push(crearCartaAleatoria()); } dibujarMercado(); }
+        
+        function rotarMercado() {
+            if (usuarioActivo === "") return;
+            mercado.shift(); mercado.push(crearCartaAleatoria()); 
+            dibujarMercado(); reiniciarBarraTiempo();
+        }
+
+        function reiniciarBarraTiempo() {
+            const barra = document.getElementById('barra');
+            barra.style.transition = 'none'; barra.style.width = '100%';
+            setTimeout(() => { barra.style.transition = 'width 10s linear'; barra.style.width = '0%'; }, 50);
+        }
+
+        function dibujarMercado() {
+            const contenedor = document.getElementById('mercado');
+            contenedor.querySelectorAll('.carta').forEach(c => c.remove());
+
+            mercado.forEach((carta, index) => {
+                let div = document.createElement('div');
+                div.className = `carta ${carta.calidadClase} ${carta.varianteClase}`;
+                let idPad = String(carta.id).padStart(3, '0');
+                let urlImagen = "https://githubusercontent.com" + carta.id + ".png";
+                
+                div.innerHTML = `
+                    <div class="id">#${idPad}</div>
+                    <div class="calidad">${carta.calidadNombre}</div>
+                    <div class="carta-img-box">
+                        <div class="silueta-backup">#${carta.id}</div>
+                        <img class="carta-img" src="${urlImagen}" alt="${carta.nombre}">
+                    </div>
+                    <div class="nombre">${carta.nombre}</div>
+                    <div class="variante">${carta.varianteNombre !== 'Normal' ? carta.varianteNombre : ''}</div>
+                    <div class="info">Costo: ${carta.costo} $<br>Da: +${carta.gps} $/s</div>
+                `;
+                div.onclick = () => comprarCarta(index);
+                contenedor.appendChild(div);
             });
         }
 
-        function resetGame() {
-            attempts++;
-            attemptsEl.innerText = attempts;
-            cameraX = 0;
-            player.y = floorY - player.size;
-            player.ySpeed = 0;
-            player.rotation = 0;
-            player.isGrounded = true;
-            jumpCount = 0; 
-            particles = []; 
-            buildLevel();
-        }
+        function comprarCarta(index) {
+            let MathRandom = Math.random();
+            let carta = mercado[index];
+            if (dinero < carta.costo) { alert("¡No tienes suficiente dinero!"); return; }
+            if (album.length >= MAX_ALBUM) { alert("¡Tu Álbum está lleno! Borra una carta para hacer espacio."); return; }
 
-        function exitToMenu() {
-            isPlaying = false;
-            canvas.style.display = "none";
-            document.getElementById("info").style.display = "none";
-            document.getElementById("ingameControls").style.display = "none";
-            menuContainer.style.display = "flex";
-            setTimeout(drawAllPreviews, 50);
-        }
-
-        // --- SISTEMAS DE TIENDA INTEGRALES ---
-        function clickSkin(id, cost) {
-            if (ownedSkins[id]) { equipSkin(id); } else {
-                if (coins >= cost) {
-                    coins -= cost; ownedSkins[id] = true; coinCountEl.innerText = coins;
-                    document.getElementById("skin" + id).classList.add("owned"); equipSkin(id);
-                } else { alert("No tienes suficientes monedas 🪙"); }
-            }
-        }
-
-        function equipSkin(id) {
-            isAdminPikachu = false; 
-            equippedSkin = id;
-            for (let i = 0; i < 11; i++) {
-                const itemEl = document.getElementById("skin" + i);
-                const statusEl = document.getElementById("status" + i);
-                if (itemEl && statusEl) {
-                    itemEl.classList.remove("equipped");
-                    if (ownedSkins[i]) statusEl.innerText = "Disponible";
-                }
-            }
-            document.getElementById("skin" + id).classList.add("equipped");
-            document.getElementById("status" + id).innerText = "Equipado";
-        }
-
-        function clickAura(id, cost) {
-            if (ownedAuras[id]) { equipAura(id); } else {
-                if (coins >= cost) {
-                    coins -= cost; ownedAuras[id] = true; coinCountEl.innerText = coins;
-                    document.getElementById("aura" + id).classList.add("owned"); equipAura(id);
-                } else { alert("No tienes suficientes monedas 🪙"); }
-            }
-        }
-
-        function equipAura(id) {
-            equippedAura = id;
-            for (let i = 0; i < 12; i++) {
-                const itemEl = document.getElementById("aura" + i);
-                const statusEl = document.getElementById("astatus" + i);
-                if (itemEl && statusEl) {
-                    itemEl.classList.remove("equipped");
-                    if (ownedAuras[i]) statusEl.innerText = "Disponible";
-                }
-            }
-            document.getElementById("aura" + id).classList.add("equipped");
-            document.getElementById("astatus" + id).innerText = "Equipado";
-        }
-
-        function buyDoubleJump() {
-            if (hasDoubleJump) {
-                alert("¡Ya tienes la habilidad de Doble Salto comprada!");
-                return;
-            }
-            if (coins >= 300) {
-                coins -= 300;
-                hasDoubleJump = true;
-                coinCountEl.innerText = coins;
-                document.getElementById("doubleJumpItem").classList.add("owned");
-                document.getElementById("doubleJumpItem").querySelector("button").innerText = "Comprado";
-                alert("👟 ¡Doble Salto comprado con éxito! Ahora puedes saltar una vez más en el aire.");
-            } else {
-                alert("No tienes suficientes monedas 🪙 (Cuesta 300)");
-            }
-        }
-
-        // REPARADO: Conexión nativa e inmediata con el campo input del HTML
-        function redeemCode() {
-            const inputField = document.getElementById("codeInputField");
-            if (!inputField) return;
+            dinero -= carta.costo;
+            album.push({...carta, albumId: Date.now() + MathRandom}); 
+            cartasDescubiertas[carta.varianteNombre][carta.id] = carta.nombre;
+            mercado[index] = crearCartaAleatoria();
             
-            const input = inputField.value.trim().toLowerCase();
-            
-            if (input === "freeskin") {
-                let lockedSkins = [];
-                for (let i = 0; i < ownedSkins.length; i++) {
-                    if (!ownedSkins[i]) lockedSkins.push(i);
-                }
-                if (lockedSkins.length === 0) {
-                    alert("¡Ya tienes todas las skins disponibles!");
-                    return;
-                }
-                let randomId = lockedSkins[Math.floor(Math.random() * lockedSkins.length)];
-                ownedSkins[randomId] = true;
-                const el = document.getElementById("skin" + randomId);
-                if (el) el.classList.add("owned");
-                equipSkin(randomId);
-                alert("🎁 ¡Código Canjeado! Has desbloqueado una skin aleatoria.");
-            } 
-            else if (input === "admin") {
-                coins = 99999;
-                coinCountEl.innerText = coins;
-                ownedSkins = ownedSkins.map(() => true);
-                ownedAuras = ownedAuras.map(() => true);
-                hasDoubleJump = true;
+            guardarProgreso(); actualizarUI(); dibujarMercado(); dibujarAlbum();
+            if (document.getElementById('modal-indice').style.display === 'flex') { dibujarIndice(); }
+        }
+
+        function borrarCarta(albumId, costo) {
+            let reembolso = Math.floor(costo / 2);
+            dinero += reembolso;
+            album = album.filter(c => c.albumId !== albumId);
+            guardarProgreso(); actualizarUI(); dibujarAlbum();
+        }
+
+        function dibujarAlbum() {
+            const contenedor = document.getElementById('album');
+            contenedor.innerHTML = '';
+
+            album.forEach((carta) => {
+                let div = document.createElement('div');
+                div.className = `carta ${carta.calidadClase} ${carta.varianteClase}`;
+                div.style.width = '145px'; div.style.height = '225px'; div.style.cursor = 'default';
+                let idPad = String(carta.id).padStart(3, '0');
+                let urlImagen = "https://githubusercontent.com" + carta.id + ".png";
                 
-                for(let i=0; i<11; i++) { const el = document.getElementById("skin"+i); if(el) el.classList.add("owned"); }
-                for(let i=0; i<12; i++) { const el = document.getElementById("aura"+i); if(el) el.classList.add("owned"); }
-                
-                const djBox = document.getElementById("doubleJumpItem");
-                if (djBox) {
-                    djBox.classList.add("owned");
-                    const djBtn = djBox.querySelector("button");
-                    if (djBtn) djBtn.innerText = "Comprado";
-                }
-                
-                isAdminPikachu = true;
-                equipSkin(0); 
-                alert("👑 ¡CÓDIGO ADMIN CANJEADO! Todo desbloqueado, Doble Salto activo, Monedas al máximo y Skin de Pikachu Equipada.");
-            } 
-            else {
-                alert("❌ Código inválido. Intenta con 'freeskin' o 'admin'.");
-            }
-            inputField.value = ""; 
-        }
-
-        function createParticles() {
-            if (equippedAura === 0) return; 
-            for (let i = 0; i < 2; i++) {
-                let p = {
-                    x: player.x + player.size / 4 + Math.random() * (player.size / 2),
-                    y: player.y + player.size - 5 + Math.random() * 10,
-                    vx: -gameSpeed * 0.3 - Math.random() * 2,
-                    vy: (Math.random() - 0.5) * 3, alpha: 1, size: Math.random() * 6 + 3, color: "#fff"
-                };
-                if (equippedAura === 1) { p.color = Math.random() > 0.4 ? "#ff4500" : "#ffcc00"; p.vy -= 1.5; } 
-                else if (equippedAura === 2) { p.color = Math.random() > 0.3 ? "#00ffff" : "#ffffff"; p.vy += 0.8; } 
-                else if (equippedAura === 3) { p.color = Math.random() > 0.5 ? "#ffff00" : "#00ffff"; p.size = Math.random() * 4 + 1; }
-                else if (equippedAura === 4) { p.color = Math.random() > 0.4 ? "#ff0055" : "#330033"; p.vy -= 1.2; }
-                else if (equippedAura === 5) { p.color = Math.random() > 0.3 ? "#9400d3" : "#4b0082"; p.size = Math.random() * 8 + 4; }
-                else if (equippedAura === 6) { p.color = Math.random() > 0.4 ? "#00ff66" : "#228b22"; p.vy += (Math.random() - 0.2) * 2; }
-                else if (equippedAura === 7) { p.color = Math.random() > 0.3 ? "#ffd700" : "#ffffff"; p.size = Math.random() * 3 + 1; }
-                else if (equippedAura === 8) { p.color = "#ff00ff"; p.size = 4; }
-                else if (equippedAura === 9) { p.color = "#ffffff"; p.size = Math.random() * 5 + 2; }
-                else if (equippedAura === 10) { p.color = "#ff66aa"; p.vy -= 0.5; }
-                else if (equippedAura === 11) { p.color = "#76ff03"; p.vy -= 0.8; }
-                particles.push(p);
-            }
-        }
-
-        let isPressing = false;
-        function jump() {
-            if (!isPlaying) return;
-            
-            if (player.isGrounded) {
-                player.ySpeed = player.jumpForce;
-                player.isGrounded = false;
-                jumpCount = 1; 
-            } 
-            else if (hasDoubleJump && jumpCount < 2) {
-                player.ySpeed = player.jumpForce * 0.95; 
-                player.isGrounded = false;
-                jumpCount = 2; 
-                
-                for (let i = 0; i < 8; i++) {
-                    particles.push({
-                        x: player.x + player.size / 2, y: player.y + player.size,
-                        vx: (Math.random() - 0.5) * 6, vy: Math.random() * 3 + 1,
-                        alpha: 1, size: Math.random() * 4 + 2, color: "#ffd700"
-                    });
-                }
-            }
-        }
-
-        window.addEventListener("keydown", (e) => { 
-            if (e.code === "Space" || e.code === "ArrowUp") {
-                jump();
-                isPressing = true; 
-            }
-        });
-        window.addEventListener("keyup", (e) => { if (e.code === "Space" || e.code === "ArrowUp") isPressing = false; });
-        canvas.addEventListener("mousedown", () => { jump(); isPressing = true; });
-        canvas.addEventListener("mouseup", () => isPressing = false);
-function drawSkinGraphics(pCtx, size, typeId) {
-            pCtx.clearRect(0, 0, size, size);
-            
-            if (isAdminPikachu) {
-                pCtx.fillStyle = "#FFDE00"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#000000"; pCtx.fillRect(0, 0, size * 0.25, size * 0.2); pCtx.fillRect(size * 0.75, 0, size * 0.25, size * 0.2);
-                pCtx.fillStyle = "#000000"; pCtx.fillRect(size * 0.2, size * 0.35, size * 0.15, size * 0.2); pCtx.fillRect(size * 0.65, size * 0.35, size * 0.15, size * 0.2);
-                pCtx.fillStyle = "#FFFFFF"; pCtx.fillRect(size * 0.2, size * 0.35, size * 0.06, size * 0.08); pCtx.fillRect(size * 0.65, size * 0.35, size * 0.06, size * 0.08);
-                pCtx.fillStyle = "#FF0000"; pCtx.fillRect(size * 0.1, size * 0.6, size * 0.16, size * 0.16); pCtx.fillRect(size * 0.74, size * 0.6, size * 0.16, size * 0.16);
-                pCtx.fillStyle = "#000000"; pCtx.fillRect(size * 0.46, size * 0.52, size * 0.08, size * 0.06); pCtx.fillRect(size * 0.38, size * 0.65, size * 0.24, size * 0.06);
-                return;
-            }
-
-            if (typeId === 0) { 
-                pCtx.fillStyle = "#00ff66"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.6, size * 0.6);
-                pCtx.fillStyle = "#000"; pCtx.fillRect(size * 0.3, size * 0.35, size * 0.15, size * 0.25); pCtx.fillRect(size * 0.55, size * 0.35, size * 0.15, size * 0.25);
-            } else if (typeId === 1) { 
-                pCtx.fillStyle = "#ff00ff"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#111"; pCtx.fillRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
-                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(size * 0.15, size * 0.35, size * 0.7, size * 0.2);
-            } else if (typeId === 2) { 
-                pCtx.fillStyle = "#ffff00"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#000"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.2, size * 0.2); pCtx.fillRect(size * 0.6, size * 0.2, size * 0.2, size * 0.2);
-                pCtx.fillRect(size * 0.3, size * 0.5, size * 0.4, size * 0.2);
-            } else if (typeId === 3) { 
-                pCtx.fillStyle = "#0055ff"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#00ffff"; pCtx.beginPath(); pCtx.moveTo(size/2, size*0.1); pCtx.lineTo(size*0.9, size/2); pCtx.lineTo(size/2, size*0.9); pCtx.lineTo(size*0.1, size/2); pCtx.fill();
-            } else if (typeId === 4) { 
-                pCtx.fillStyle = "#888"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#ff66aa"; pCtx.fillRect(size * 0.3, size * 0.3, size * 0.4, size * 0.4);
-                pCtx.fillStyle = "#fff"; pCtx.fillRect(size * 0.4, size * 0.1, size * 0.2, size * 0.8); pCtx.fillRect(size * 0.1, size * 0.4, size * 0.8, size * 0.2);
-            } else if (typeId === 5) { 
-                pCtx.fillStyle = "#ff3333"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#000"; pCtx.beginPath(); pCtx.moveTo(size*0.2, size*0.2); pCtx.lineTo(size*0.45, size*0.4); pCtx.lineTo(size*0.45, size*0.25); pCtx.fill(); pCtx.moveTo(size*0.8, size*0.2); pCtx.lineTo(size*0.55, size*0.4); pCtx.lineTo(size*0.55, size*0.25); pCtx.fill(); pCtx.fillRect(size * 0.25, size * 0.65, size * 0.5, size * 0.1);
-            } else if (typeId === 6) { 
-                pCtx.fillStyle = "#ffaa00"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#222"; pCtx.fillRect(size * 0.15, size * 0.15, size * 0.7, size * 0.7);
-                pCtx.fillStyle = "#ff0000"; pCtx.fillRect(size * 0.3, size * 0.35, size * 0.4, size * 0.15);
-            } else if (typeId === 7) { 
-                pCtx.fillStyle = "#00ffff"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#000"; pCtx.fillRect(0, size * 0.2, size, size * 0.15); pCtx.fillRect(0, size * 0.5, size, size * 0.15); pCtx.fillRect(0, size * 0.8, size, size * 0.15);
-            } else if (typeId === 8) { 
-                pCtx.fillStyle = "#9400d3"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#ffd700"; pCtx.fillRect(size * 0.4, size * 0.1, size * 0.2, size * 0.8);
-                pCtx.fillRect(size * 0.1, size * 0.4, size * 0.8, size * 0.2);
-            } else if (typeId === 9) { 
-                pCtx.fillStyle = "#ffffff"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#ff00ff"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.3, size * 0.3);
-                pCtx.fillRect(size * 0.5, size * 0.5, size * 0.3, size * 0.3);
-            } else if (typeId === 10) { 
-                pCtx.fillStyle = "#4a0e4e"; pCtx.fillRect(0, 0, size, size);
-                pCtx.fillStyle = "#ffd700"; pCtx.fillRect(size * 0.2, size * 0.2, size * 0.6, size * 0.6); pCtx.strokeStyle = "#ffffff"; pCtx.lineWidth = 2; pCtx.strokeRect(size * 0.3, size * 0.3, size * 0.4, size * 0.4);
-            }
-        }
-
-        function drawAllPreviews() {
-            for (let i = 0; i < 11; i++) {
-                const c = document.getElementById("preview" + i);
-                if (c) drawSkinGraphics(c.getContext("2d"), 30, i);
-            }
-        }
-
-        function startGame(levelId, demonMode) {
-            currentLevelId = levelId; isDemonMode = demonMode;
-            attempts = 1; cameraX = 0; gameSpeed = isDemonMode ? 6.5 : 6.2;
-            attemptsEl.innerText = attempts;
-            
-            const levelNames = ["Stereo Madness", "Back On Track", "Polargeist", "Dry Out", "Base After Base", "Cant Let Go"];
-            const baseName = levelNames[levelId - 1] || "Nivel";
-            levelNameEl.innerText = baseName + (isDemonMode ? " [DEMON]" : "");
-            
-            menuContainer.style.display = "none"; canvas.style.display = "block";
-            document.getElementById("info").style.display = "block";
-            document.getElementById("ingameControls").style.display = "flex"; 
-            player.y = floorY - player.size; player.ySpeed = 0; player.rotation = 0; player.isGrounded = true;
-            particles = []; buildLevel(); isPlaying = true;
-        }
-function update() {
-            if (!isPlaying) return;
-            if (isPressing) jump();
-
-            player.ySpeed += gravity; player.y += player.ySpeed; cameraX += gameSpeed;
-            let onAnyObject = false;
-
-            if (player.y >= floorY - player.size) {
-                player.y = floorY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
-                jumpCount = 0; 
-            }
-
-            createParticles();
-
-            particles.forEach((p, index) => {
-                p.x += p.vx; p.y += p.vy; p.alpha -= 0.025; 
-                if (equippedAura === 3) p.x += (Math.random() - 0.5) * 4;
-                if (p.alpha <= 0) particles.splice(index, 1);
+                div.innerHTML = `
+                    <div class="id">#${idPad}</div>
+                    <div class="calidad" style="font-size:10px;">${carta.calidadNombre}</div>
+                    <div class="carta-img-box" style="height:60px;">
+                        <div class="silueta-backup" style="width:35px; height:35px; font-size:11px;">#${carta.id}</div>
+                        <img class="carta-img" src="${urlImagen}" alt="${carta.nombre}">
+                    </div>
+                    <div class="nombre" style="font-size:13px;">${carta.nombre}</div>
+                    <div class="variante" style="font-size:10px;">${carta.varianteNombre !== 'Normal' ? carta.varianteNombre : ''}</div>
+                    <div class="info" style="font-size:10px; padding:3px;">Genera: ${carta.gps} $/s</div>
+                    <button class="btn-borrar" onclick="borrarCarta(${carta.albumId}, ${carta.costo})">Borrar (+${Math.floor(carta.costo/2)}$)</button>
+                `;
+                contenedor.appendChild(div);
             });
+        }
 
-            obstacles.forEach(obs => {
-                let screenX = obs.x - cameraX; let screenY = floorY - obs.baseHeight;
-                if (obs.type === 'b') {
-                    if (player.x + player.size > screenX + 2 && player.x < screenX + obs.width - 2 &&
-                        player.y + player.size >= screenY - 8 && player.y + player.size <= screenY + 12 && player.ySpeed >= 0) {
-                        player.y = screenY - player.size; player.ySpeed = 0; player.isGrounded = true; onAnyObject = true;
-                        jumpCount = 0; 
-                    } else if (player.x + player.size > screenX && player.x < screenX + 12 && player.y + player.size > screenY + 4) {
-                        resetGame();
-                    }
+        function dibujarPestanasIndice() {
+            const contenedor = document.getElementById('indice-pestanas');
+            contenedor.innerHTML = '';
+            VARIANTES.forEach(v => {
+                let btn = document.createElement('button');
+                btn.className = `pestana-btn ${varianteActivaIndice === v.nombre ? 'activa' : ''}`;
+                btn.innerText = v.nombre;
+                btn.onclick = () => { varianteActivaIndice = v.nombre; dibujarPestanasIndice(); dibujarIndice(); };
+                contenedor.appendChild(btn);
+            });
+        }
+
+        function dibujarIndice() {
+            const contenedor = document.getElementById('indice-grid');
+            contenedor.innerHTML = '';
+
+            for (let i = 1; i <= 150; i++) {
+                let div = document.createElement('div');
+                let nombreDescubierto = cartasDescubiertas[varianteActivaIndice][i];
+                let idPad = String(i).padStart(3, '0');
+                
+                if (nombreDescubierto) {
+                    let urlImagen = "https://githubusercontent.com" + i + ".png";
+                    div.className = "indice-item descubierto";
+                    div.innerHTML = `
+                        <div>#${idPad}</div>
+                        <div class="carta-img-box" style="width:50px; height:50px; background:transparent;">
+                            <div class="silueta-backup" style="width:30px; height:30px; font-size:10px;">#${i}</div>
+                            <img class="indice-img" src="${urlImagen}" alt="${nombreDescubierto}">
+                        </div>
+                        <div>${nombreDescubierto}</div>
+                    `;
                 } else {
-                    let spikeY = floorY - obs.baseHeight - obs.height;
-                    if (player.x + player.size - 6 > screenX && player.x + 6 < screenX + obs.width && player.y + player.size - 4 > spikeY) {
-                        resetGame();
-                    }
+                    div.className = "indice-item";
+                    div.innerHTML = `<div>#${idPad}</div><div style="font-size:24px; margin:5px 0;">❓</div><div>???</div>`;
                 }
-            });
-
-            if (!onAnyObject) {
-                player.isGrounded = false; player.rotation += isDemonMode ? 0.14 : 0.12;
-            } else {
-                player.rotation = Math.round(player.rotation / (Math.PI / 2)) * (Math.PI / 2);
-            }
-
-            const currentList = isDemonMode ? levelsData.demon[currentLevelId] : levelsData.easy[currentLevelId];
-            const lastObstacle = currentList[currentList.length - 1];
-            if (cameraX > (lastObstacle.gridX * GRID_SIZE) + 1200) {
-                isPlaying = false;
-                let prize = isDemonMode ? 40 : 20; coins += prize; coinCountEl.innerText = coins;
-                alert(`¡Nivel Completado! Recompensa: 🪙 ${prize} monedas.`);
-                canvas.style.display = "none"; document.getElementById("info").style.display = "none";
-                document.getElementById("ingameControls").style.display = "none"; 
-                menuContainer.style.display = "flex"; setTimeout(drawAllPreviews, 50);
+                contenedor.appendChild(div);
             }
         }
 
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            if (isDemonMode) {
-                ctx.strokeStyle = "rgba(255, 0, 0, 0.04)"; ctx.fillStyle = "#150000";
-            } else {
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.03)"; ctx.fillStyle = "#0d0d26";
-            }
-
-            let offsetX = -(cameraX % GRID_SIZE);
-            for (let x = offsetX; x < canvas.width; x += GRID_SIZE) {
-                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, floorY); ctx.stroke();
-            }
-            ctx.fillRect(0, floorY, canvas.width, canvas.height - floorY);
-            
-            ctx.strokeStyle = isDemonMode ? "#ff0044" : "#0088ff"; 
-            ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(0, floorY); ctx.lineTo(canvas.width, floorY); ctx.stroke(); 
-
-            // Partículas de las auras
-            particles.forEach(p => {
-                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
-                if (equippedAura === 3) {
-                    ctx.beginPath();
-                    ctx.moveTo(p.x, p.y - p.size); ctx.lineTo(p.x + p.size/2, p.y);
-                    ctx.lineTo(p.x, p.y + p.size); ctx.lineTo(p.x - p.size/2, p.y);
-                    ctx.fill();
-                } else {
-                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-                }
-                ctx.restore();
-            });
-
-            obstacles.forEach(obs => {
-                let screenX = obs.x - cameraX;
-                if (screenX > -150 && screenX < canvas.width + 150) {
-                    if (obs.type === 'b') {
-                        ctx.fillStyle = "#111"; ctx.strokeStyle = isDemonMode ? "#ff3333" : "#fff"; ctx.lineWidth = 2;
-                        ctx.fillRect(screenX, floorY - obs.baseHeight, obs.width, obs.baseHeight);
-                        ctx.strokeRect(screenX, floorY - obs.baseHeight, obs.width, obs.baseHeight);
-                    } else {
-                        ctx.fillStyle = isDemonMode ? "#ff0000" : "#ff2a2a";
-                        let totalSpikes = obs.type === 's' ? 1 : (obs.type === 'ss' ? 2 : 3);
-                        let spikeY = floorY - obs.baseHeight;
-                        for (let i = 0; i < totalSpikes; i++) {
-                            let currentX = screenX + (i * GRID_SIZE);
-                            ctx.beginPath(); ctx.moveTo(currentX, spikeY); ctx.lineTo(currentX + 15, spikeY - GRID_SIZE); ctx.lineTo(currentX + 30, spikeY); ctx.fill();
-                        }
-                    }
-                }
-            });
-
-            if (isPlaying) {
-                ctx.save();
-                ctx.translate(player.x + player.size / 2, player.y + player.size / 2);
-                ctx.rotate(player.rotation); ctx.translate(-player.size / 2, -player.size / 2);
-                drawSkinGraphics(ctx, player.size, equippedSkin);
-                ctx.restore();
-            }
+        function obtenerGPS() { return album.reduce((sum, c) => sum + c.gps, 0); }
+        
+        function actualizarUI() {
+            document.getElementById('txt-dinero').innerText = Math.floor(dinero);
+            document.getElementById('txt-gps').innerText = obtenerGPS();
+            document.getElementById('txt-album-cant').innerText = album.length;
         }
 
-        function loop() { update(); draw(); requestAnimationFrame(loop); }
-        setTimeout(drawAllPreviews, 150);
-        loop();
+        setInterval(() => {
+            if (usuarioActivo !== "") { dinero += obtenerGPS(); actualizarUI(); guardarProgreso(); }
+        }, 1000);
+
+        setInterval(() => { rotarMercado(); }, 10000);
     </script>
 </body>
 </html>
