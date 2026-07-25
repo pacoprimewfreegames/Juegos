@@ -1,1 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PokeCard Idle Collector 2.0</title>
+
+    <meta name="description" content="Colecciona cartas Pokémon, abre sobres, completa el álbum y consigue cartas Shiny.">
+
+    <link rel="icon" href="favicon.ico">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+<!-- =============================== -->
+<!-- FONDO -->
+<!-- =============================== -->
+
+<div id="background"></div>
+
+<!-- =============================== -->
+<!-- NOTIFICACIONES -->
+<!-- =============================== -->
+
+<div id="notifications"></div>
+
+<!-- =============================== -->
+<!-- LOGIN -->
+<!-- =============================== -->
+
+<section id="loginScreen" class="screen">
+
+    <div class="loginCard">
+
+        <h1>PokeCard Idle Collector</h1>
+
+        <p>Versión 2.0</p>
+
+        <input
+            id="username"
+            type="text"
+            maxlength="20"
+            placeholder="Nombre de entrenador">
+
+        <button id="loginButton">
+
+            JUGAR
+
+        </button>
+
+    </div>
+
+</section>
+
+<!-- =============================== -->
+<!-- JUEGO -->
+<!-- =============================== -->
+
+<section id="gameScreen" class="screen hidden">
+
+<header>
+
+<div class="logo">
+
+🎴 PokeCard Idle Collector
+
+</div>
+
+<div class="topStats">
+
+<div class="stat">
+
+💰
+
+<span id="money">
+
+0
+
+</span>
+
+</div>
+
+<div class="stat">
+
+📦
+
+<span id="packs">
+
+0
+
+</span>
+
+</div>
+
+<div class="stat">
+
+⭐
+
+<span id="cards">
+
+0
+
+</span>
+
+</div>
+
+<div class="stat">
+
+🏆
+
+<span id="level">
+
+1
+
+</span>
+
+</div>
+
+</div>
+
+</header>
+
+<!-- =============================== -->
+<!-- MENÚ -->
+<!-- =============================== -->
+
+<nav>
+
+<button class="menuButton active"
+data-tab="market">
+
+🛒 Mercado
+
+</button>
+
+<button class="menuButton"
+data-tab="album">
+
+📖 Álbum
+
+</button>
+
+<button class="menuButton"
+data-tab="missions">
+
+📋 Misiones
+
+</button>
+
+<button class="menuButton"
+data-tab="achievements">
+
+🏆 Logros
+
+</button>
+
+<button class="menuButton"
+data-tab="settings">
+
+⚙ Ajustes
+
+</button>
+
+</nav>
+
+<!-- =============================== -->
+<!-- CONTENIDO -->
+<!-- =============================== -->
+
+<main>
+
+<section id="market"
+class="tab active">
+
+<h2>
+
+Mercado
+
+</h2>
+
+<div id="marketContainer">
+
+</div>
+
+</section>
+
+<section id="album"
+class="tab">
+
+<h2>
+
+Álbum
+
+</h2>
+
+<div id="albumGrid">
+
+</div>
+
+</section>
+
+<section id="missions"
+class="tab">
+
+<h2>
+
+Misiones
+
+</h2>
+
+<div id="missionsContainer">
+
+</div>
+
+</section>
+
+<section id="achievements"
+class="tab">
+
+<h2>
+
+Logros
+
+</h2>
+
+<div id="achievementsContainer">
+
+</div>
+
+</section>
+
+<section id="settings"
+class="tab">
+
+<h2>
+
+Configuración
+
+</h2>
+
+<button id="saveButton">
+
+Guardar partida
+
+</button>
+
+<button id="resetButton">
+
+Reiniciar partida
+
+</button>
+
+</section>
+
+</main>
+
+<footer>
+
+<button id="openPack">
+
+📦 Abrir Sobre
+
+</button>
+
+</footer>
+
+</section>
+
+<!-- =============================== -->
+<!-- APERTURA DE SOBRES -->
+<!-- =============================== -->
+
+<div id="openingScreen"
+class="hidden">
+
+<div id="openingCards">
+
+</div>
+
+</div>
+
+<!-- =============================== -->
+<!-- LUCKY BLOCK -->
+<!-- =============================== -->
+
+<div id="luckyBlock"
+class="hidden">
+
+🎁
+
+</div>
+
+<!-- =============================== -->
+<!-- PANEL ADMIN -->
+<!-- =============================== -->
+
+<div id="adminPanel"
+class="hidden">
+
+<h2>
+
+ADMIN PANEL
+
+</h2>
+
+<button id="spawnLuckyBlock">
+
+Crear Lucky Block
+
+</button>
+
+<button id="giveMoney">
+
+Dar dinero
+
+</button>
+
+<button id="givePack">
+
+Dar sobres
+
+</button>
+
+<button id="giveCard">
+
+Dar carta
+
+</button>
+
+<button id="startEvent">
+
+Lanzar evento
+
+</button>
+
+</div>
+
+<!-- =============================== -->
+<!-- JAVASCRIPT -->
+<!-- =============================== -->
+
+<script src="js/pokemon.js"></script>
+<script src="js/save.js"></script>
+<script src="js/market.js"></script>
+<script src="js/album.js"></script>
+<script src="js/missions.js"></script>
+<script src="js/achievements.js"></script>
+<script src="js/luckyblock.js"></script>
+<script src="js/admin.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/main.js"></script>
+
+</body>
+
+</html>
